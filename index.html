@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GearDock · Season 2</title>
+<style>
+:root{
+  --abyss:#0b1016;
+  --abyss-2:#111922;
+  --abyss-3:#18232f;
+  --ink:#060a0e;
+  --bone:#e8e4d9;
+  --bone-dim:#9aa4ae;
+  --rule:#243241;
+
+  --adv:#4ea36b;
+  --vet:#3f86c4;
+  --champ:#9a6ad4;
+  --hero:#d98a2b;
+  --myth:#d4557a;
+  --venom:#a8d84a;
+
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --display:"Century Gothic","Questrial","Futura","Avant Garde",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --body:"Segoe UI Variable Text","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--abyss);color:var(--bone);
+  font-family:var(--body);font-size:18px;line-height:1.6;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(168,216,74,.07),transparent 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:1416px;margin:0 auto;padding:0 24px}
+
+/* header */
+header{padding:62.4px 0 40.8px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:13.2px;letter-spacing:.22em;text-transform:uppercase;color:var(--venom);margin:0 0 16.8px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(40.8px,7.2vw,72px);line-height:.95;letter-spacing:-.02em;margin:0 0 16.8px;text-transform:uppercase}
+h1 span{color:var(--bone-dim);display:block;font-size:.42em;letter-spacing:.04em;font-weight:400;margin-top:12px;text-transform:none}
+.meta{font-family:var(--mono);font-size:14.4px;color:var(--bone-dim);margin-top:20px}
+.meta b{color:var(--bone);font-weight:600}
+
+/* nav */
+nav{position:sticky;top:0;z-index:40;background:rgba(11,16,22,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+nav ul{display:flex;gap:2px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:thin}
+nav a{display:flex;align-items:baseline;gap:6px;padding:13px 14px;color:var(--bone-dim);text-decoration:none;font-size:11px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;border-bottom:2px solid transparent}
+nav a:hover,nav a:focus-visible{color:var(--bone);border-bottom-color:var(--venom);background:var(--abyss-2)}
+nav .nn{color:var(--venom);font-size:10px;letter-spacing:.14em}
+nav a:hover .nn,nav a:focus-visible .nn{color:var(--venom)}
+
+section{padding:67.2px 0;border-bottom:1px solid var(--rule)}
+h2{position:relative;padding-right:70px;font-family:var(--display);font-size:clamp(26.4px,4.1vw,37.2px);text-transform:uppercase;letter-spacing:.01em;margin:0 0 9.6px;font-weight:700}
+.totop{position:absolute;right:0;top:2px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-dim);text-decoration:none;padding:3px 8px;border:1px solid var(--rule);border-radius:2px}
+.totop:hover,.totop:focus-visible{color:var(--venom);border-color:var(--venom)}
+section[id]{scroll-margin-top:46px}
+h2 .num{font-family:var(--mono);font-size:14.4px;color:var(--venom);display:block;letter-spacing:.2em;margin-bottom:8px;text-transform:none}
+.lede{color:var(--bone-dim);max-width:66ch;margin:0 0 33.6px}
+h3{font-family:var(--display);font-size:20.4px;text-transform:uppercase;letter-spacing:.06em;margin:40.8px 0 14.4px;color:var(--bone)}
+
+/* ladder */
+.ladder-shell{border:1px solid var(--rule);background:var(--abyss-2);border-radius:3px;overflow:hidden;height:100%}
+.ladder-split{display:grid;grid-template-columns:472px 1fr;gap:30px;align-items:stretch}
+.drop-col{display:flex;flex-direction:column;gap:30px}
+.panel{border:1px solid var(--rule);background:var(--abyss-2);border-radius:3px;overflow:hidden;display:flex;flex-direction:column}
+.panel-head{background:var(--ink);border-bottom:1px solid var(--rule);padding:7px 13px;font-family:var(--mono);font-size:11.2px;letter-spacing:.13em;text-transform:uppercase;color:var(--bone-dim)}
+.panel table{margin:0}
+.panel table th{background:transparent;border-bottom:1px solid var(--rule);padding:7px 13px}
+.panel table td{padding:5.5px 13px}
+.panel tbody tr:last-child td{border-bottom:0}
+.panel-foot{margin-top:auto;background:var(--ink);border-top:1px solid var(--rule);padding:10px 13px;font-size:13.5px;color:var(--bone-dim)}
+.ilvl-n{font-family:var(--mono);font-weight:600}
+.bosslink{color:inherit;text-decoration:none;border-bottom:1px dotted var(--rule)}
+.bosslink:hover,.bosslink:focus-visible{color:var(--venom);border-bottom-color:var(--venom)}
+.loot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:24px}
+@media(max-width:900px){.loot-grid{grid-template-columns:1fr}}
+.panel-head .q{float:right;font-family:var(--mono);letter-spacing:0;text-transform:none}
+.lootgrp{display:grid;grid-template-columns:104px 1fr;gap:12px;padding:10px 13px;border-bottom:1px solid rgba(36,50,65,.55);align-items:start}
+.lootgrp:last-of-type{border-bottom:0}
+.lootgrp .g{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-dim);padding-top:3px}
+.items{display:flex;flex-wrap:wrap;gap:5px}
+.item{display:inline-block;font-size:13.5px;padding:2px 8px;border-radius:2px;background:var(--abyss-3);color:var(--bone);text-decoration:none;border:1px solid transparent}
+.item:hover,.item:focus-visible{border-color:var(--venom);color:var(--venom)}
+.item.vr{box-shadow:inset 0 0 0 1px rgba(212,85,122,.5)}
+.item.tok{background:rgba(217,138,43,.13)}
+.crestbox{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.crestin{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(36,50,65,.5)}
+.crestin label{flex:1;font-size:14px}
+.crestin input{width:76px;text-align:right}
+.minibtn{background:var(--abyss-3);color:var(--bone);border:1px solid var(--rule);border-radius:2px;font-family:var(--mono);font-size:11.5px;padding:3px 9px;cursor:pointer;letter-spacing:.06em}
+.minibtn:hover{border-color:var(--venom);color:var(--venom)}
+.calc-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+@media(max-width:1000px){.calc-split{grid-template-columns:1fr}#pieceList{min-height:0}}
+.calc-right{display:flex;flex-direction:column;gap:24px}
+.calc-right .panel{flex:1}
+#pieceList{min-height:832px}
+#simcIn{width:100%;background:var(--ink);color:var(--bone);border:1px solid var(--rule);border-radius:2px;padding:10px 12px;font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical}
+.simcmsg{font-size:13.5px;color:var(--bone-dim);margin-top:10px}
+.simcmsg b{color:var(--bone)}
+.simcmsg.err{color:var(--hero)}
+.prow.phead{background:var(--ink);border-bottom:1px solid var(--rule);padding-top:7px;padding-bottom:7px}
+.prow.phead span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-dim)}
+.prow.review{box-shadow:inset 3px 0 0 var(--hero)}
+.prow.crafted{box-shadow:inset 3px 0 0 var(--vet)}
+.prow.stale{box-shadow:inset 3px 0 0 var(--myth)}
+.prow input[type=checkbox]{accent-color:var(--venom);width:15px;height:15px}
+.rowitem{font-size:13.5px;color:var(--bone-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rowitem.none{opacity:.4}
+.sub{color:var(--bone-dim);font-size:12px}
+td.mono{font-family:var(--mono);font-size:13px;white-space:nowrap;color:var(--venom)}
+.crest-t th:nth-child(2),.crest-t td:nth-child(2){width:190px}
+.crest-t th:nth-child(3),.crest-t td:nth-child(3){width:110px;text-align:center}
+.src-t td:first-child{width:130px}
+.crestpanel table{flex:1}
+.prow.stale .rowitem,.prow.crafted .rowitem{opacity:.75}
+.prow.off select,.prow select:disabled{opacity:.5}
+.prow.off .rowitem{opacity:.55}
+.prow.empty{opacity:.6}
+.prow.empty .rowitem{font-style:italic}
+.leftrow{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid rgba(36,50,65,.5)}
+.leftrow .amt{font-family:var(--mono);font-weight:600;font-size:15px;min-width:52px;text-align:right}
+.leftrow .why{font-size:13.5px;color:var(--bone-dim);flex:1}
+.leftrow.spent .amt{color:var(--bone-dim)}
+#pieceCount{font-family:var(--mono);font-size:11px;color:var(--bone-dim);margin-right:6px}
+.minibtn[disabled]{opacity:.4;cursor:not-allowed}
+.minibtn[disabled]:hover{border-color:var(--rule);color:var(--bone)}
+.prow{display:grid;grid-template-columns:24px 118px minmax(0,1fr) 112px 122px 26px;gap:8px;padding:9px 14px;border-bottom:1px solid rgba(36,50,65,.5);align-items:center}
+.prow select{min-width:0;width:100%;padding:7px 8px;font-size:12.5px}
+.xbtn{background:none;border:0;color:var(--bone-dim);cursor:pointer;font-size:17px;line-height:1;padding:4px}
+.xbtn:hover{color:var(--myth)}
+/* the four numeric columns share one width and centre on it */
+.bagtbl th:nth-child(n+4),.bagtbl td:nth-child(n+4){text-align:center;width:118px}
+.bagtbl th:nth-child(3),.bagtbl td:nth-child(3){width:132px}
+.bagtbl td:nth-child(n+4){white-space:nowrap}
+.nowbtr{font-family:var(--mono);font-size:10.5px;color:var(--venom);border:1px solid rgba(168,216,74,.45);border-radius:2px;padding:1px 5px;margin-left:4px}
+.itemname{display:block;font-size:13px;color:var(--bone-dim);margin-top:2px}
+.plan-empty{padding:16px 14px;color:var(--bone-dim);font-size:14px}
+.gain{color:var(--venom);font-weight:600}
+.best{box-shadow:inset 3px 0 0 var(--venom)}
+.vrkey{font-family:var(--mono);font-size:12.5px;color:var(--bone-dim);margin-top:14px}
+.c-vet{color:var(--vet)}.c-champ{color:var(--champ)}.c-hero{color:var(--hero)}.c-myth{color:var(--myth)}
+.c-cap{color:#ffd9e4;background:rgba(212,85,122,.22);padding:1px 6px;border-radius:2px}
+@media(max-width:1150px){.ladder-split{grid-template-columns:1fr}.ladder-shell{max-width:520px}}
+.tight td{padding:5.5px 11px}.tight th{padding:7px 11px}
+.drop-col h3:first-child{margin-top:0}
+.ladder-head{display:grid;grid-template-columns:58px repeat(5,1fr);background:var(--ink);border-bottom:1px solid var(--rule)}
+.ladder-head div{padding:7px 3px;font-family:var(--mono);font-size:11.2px;letter-spacing:.13em;text-transform:uppercase;text-align:center;color:var(--bone-dim)}
+.ladder-head div:first-child{text-align:left;padding-left:11px}
+.ladder-body{max-height:none}
+.lrow{display:grid;grid-template-columns:58px repeat(5,1fr);border-bottom:1px solid rgba(36,50,65,.5);cursor:default;transition:background .12s}
+.lrow:last-child{border-bottom:0}
+.lrow:hover{background:rgba(168,216,74,.06)}
+.lrow.hot{background:rgba(168,216,74,.11)}
+.ilvl{font-family:var(--mono);font-size:14px;font-weight:600;padding:3px 6px 3px 11px;color:var(--bone);border-right:1px solid var(--rule);display:flex;align-items:center}
+.cell{padding:3px 2px;text-align:center;font-family:var(--mono);font-size:12.4px;display:flex;align-items:center;justify-content:center;min-height:24px}
+.pip{display:inline-block;padding:1.5px 7px;border-radius:2px;font-weight:600;letter-spacing:.03em}
+.t-adv .pip{background:rgba(78,163,107,.16);color:var(--adv);box-shadow:inset 0 0 0 1px rgba(78,163,107,.35)}
+.t-vet .pip{background:rgba(63,134,196,.16);color:var(--vet);box-shadow:inset 0 0 0 1px rgba(63,134,196,.35)}
+.t-champ .pip{background:rgba(154,106,212,.16);color:var(--champ);box-shadow:inset 0 0 0 1px rgba(154,106,212,.35)}
+.t-hero .pip{background:rgba(217,138,43,.16);color:var(--hero);box-shadow:inset 0 0 0 1px rgba(217,138,43,.35)}
+.t-myth .pip{background:rgba(212,85,122,.16);color:var(--myth);box-shadow:inset 0 0 0 1px rgba(212,85,122,.35)}
+.pip.cap{background:rgba(212,85,122,.3);color:#ffd9e4;box-shadow:inset 0 0 0 1px var(--myth)}
+.ladder-note{padding:14px 18px;font-size:15px;color:var(--bone-dim);background:var(--ink);border:1px solid var(--rule);border-radius:3px;margin-top:18px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;margin:0 0 9.6px;font-size:16.8px}
+caption{text-align:left;font-family:var(--mono);font-size:13.2px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-dim);padding:0 0 10.8px}
+th{text-align:left;font-family:var(--mono);font-size:12.6px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-dim);font-weight:500;padding:10.8px 14.4px;border-bottom:1px solid var(--rule);background:var(--ink)}
+td{padding:10.8px 14.4px;border-bottom:1px solid rgba(36,50,65,.55)}
+tbody tr:hover{background:var(--abyss-2)}
+td.n{font-family:var(--mono);font-weight:600}
+.tag{font-family:var(--mono);font-size:13.2px;padding:2px 9.6px;border-radius:2px;white-space:nowrap}
+.tag.adv{background:rgba(78,163,107,.16);color:var(--adv)}
+.tag.vet{background:rgba(63,134,196,.16);color:var(--vet)}
+.tag.champ{background:rgba(154,106,212,.16);color:var(--champ)}
+.tag.hero{background:rgba(217,138,43,.16);color:var(--hero)}
+.tag.myth{background:rgba(212,85,122,.16);color:var(--myth)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:40.8px}
+/* .rows aligns matching blocks across both columns: heading, table, note, panel */
+.grid2.rows>div>h3{margin-top:0}
+@supports (grid-template-rows:subgrid){
+  .grid2.rows{grid-template-rows:repeat(4,auto)}
+  .grid2.rows>div{display:grid;grid-row:1/span 4;grid-template-rows:subgrid;row-gap:16px;align-content:start}
+  .grid2.rows>div>*{margin-top:0!important;margin-bottom:0!important;align-self:start}
+  .grid2.rows>div>.panel{align-self:stretch}
+}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:1032px){.grid2,.grid3{grid-template-columns:1fr;gap:31.2px}}
+
+.card{border:1px solid var(--rule);background:var(--abyss-2);padding:21.6px 24px;border-radius:3px}
+.card h4{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:16.8px;margin:0 0 9.6px}
+.card p{margin:0;font-size:16.2px;color:var(--bone-dim)}
+
+.callout{border-left:3px solid var(--venom);background:var(--abyss-2);padding:16.8px 21.6px;margin:24px 0;font-size:16.8px}
+.callout.warn{border-left-color:var(--hero)}
+.callout b{color:var(--bone)}
+
+/* calculator */
+.calc{border:1px solid var(--rule);background:var(--abyss-2);border-radius:3px;padding:26.4px}
+.calc-row{display:flex;flex-wrap:wrap;gap:19.2px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:7.2px}
+.field label{font-family:var(--mono);font-size:12.6px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-dim)}
+select,input[type=number]{background:var(--ink);color:var(--bone);border:1px solid var(--rule);padding:10.8px 13.2px;font-family:var(--mono);font-size:15.6px;border-radius:2px;min-width:144px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--venom);outline-offset:2px}
+.readout{margin-top:22px;padding-top:20px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:40.8px}
+.stat{min-width:132px}
+.stat .k{font-family:var(--mono);font-size:12.6px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-dim);display:block;margin-bottom:5px}
+.stat .v{font-family:var(--display);font-size:37.2px;font-weight:700;line-height:1}
+.stat .v small{font-size:15.6px;color:var(--bone-dim);font-weight:400;font-family:var(--mono)}
+
+/* checklist */
+.check{list-style:none;padding:0;margin:0}
+.check li{display:flex;gap:14.4px;align-items:flex-start;padding:13.2px 0;border-bottom:1px solid rgba(36,50,65,.55)}
+.check input{margin-top:4px;accent-color:var(--venom);width:19.2px;height:19.2px;flex:none}
+.check .task{flex:1}
+.check .task b{display:block;font-size:16.8px}
+.check .task span{font-size:15px;color:var(--bone-dim)}
+.check .yield{font-family:var(--mono);font-size:13.2px;color:var(--venom);white-space:nowrap;padding-top:2px;text-align:right}
+.check .tmin{display:block;color:var(--bone-dim);font-size:12px;margin-top:3px}
+.check input:checked + .task b,.check input:checked + .task span{text-decoration:line-through;opacity:.45}
+.checkbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin:0 0 6px;font-family:var(--mono);font-size:13.2px;color:var(--bone-dim)}
+.minibtn2{background:transparent;color:var(--bone-dim);border:1px solid var(--rule);padding:5px 11px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px}
+.minibtn2:hover{color:var(--bone);border-color:var(--venom)}
+.minibtn2:focus-visible{outline:2px solid var(--venom);outline-offset:1px}
+.saveline{font-size:12.5px;color:var(--bone-dim);margin-top:16px}
+.saveline.warn{color:var(--hero)}
+
+/* countdown */
+.clock{margin-top:28px;border:1px solid var(--rule);border-left:3px solid var(--venom);background:linear-gradient(180deg,var(--abyss-2),rgba(17,25,34,0));padding:22px 26px}
+.clock.live{border-left-color:var(--myth)}
+.clock-label{font-family:var(--mono);font-size:13.2px;letter-spacing:.18em;text-transform:uppercase;color:var(--venom);margin:0}
+.clock.live .clock-label{color:var(--myth)}
+.clock-digits{display:flex;gap:26px;margin:14px 0 0;flex-wrap:wrap}
+.unit{display:flex;flex-direction:column}
+.unit b{font-family:var(--mono);font-size:clamp(30px,5vw,46px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.unit i{font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim);margin-top:8px}
+.clock-note{font-size:15px;color:var(--bone-dim);margin:16px 0 0;max-width:76ch}
+.prep-done{display:none}
+
+.verify{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--hero);border:1px solid rgba(217,138,43,.4);padding:1px 7.2px;border-radius:2px;vertical-align:middle;margin-left:6px}
+
+footer{padding:48px 0 84px;font-size:15px;color:var(--bone-dim)}
+footer a{color:var(--bone-dim)}
+.legend{display:flex;flex-wrap:wrap;gap:16.8px;margin:0 0 26.4px;font-family:var(--mono);font-size:13.8px}
+.legend span{display:flex;align-items:center;gap:8.4px}
+.dot{width:10.8px;height:10.8px;border-radius:2px;display:inline-block}
+</style>
+</head>
+<body>
+
+<header id="top">
+<div class="wrap">
+<div class="head-main">
+<p class="eyebrow">Patch 12.1 &middot; The Curse of Ula'tek</p>
+<h1>GearDock<span>Midnight Season 2 gearing reference</span></h1>
+<p class="lede" style="margin-bottom:0">Every item level, every source, one page. Built for guild members who want to know what to run tonight and what to spend crests on tomorrow.</p>
+<p class="meta">Season 2 opens <b>18 Aug 2026</b> &middot; Season floor <b>266</b> &middot; Ceiling <b>344</b> &middot; Last checked <b>12 Aug 2026</b></p>
+
+<div class="clock" id="clock">
+<p class="clock-label" id="clockLabel">Season 2 opens in</p>
+<div class="clock-digits" id="clockDigits"></div>
+<p class="clock-note" id="clockNote"></p>
+</div>
+</div>
+</div>
+</header>
+
+<nav>
+<div class="wrap">
+<ul>
+<li id="navPrep"><a href="#prep"><span class="nn">00</span>Prep week</a></li>
+<li><a href="#ladder"><span class="nn">01</span>Ladder</a></li>
+<li><a href="#drops"><span class="nn">02</span>Dungeons</a></li>
+<li><a href="#loot"><span class="nn">03</span>Raid loot</a></li>
+<li><a href="#vault"><span class="nn">04</span>Vault</a></li>
+<li><a href="#crests"><span class="nn">05</span>Mistcrests</a></li>
+<li><a href="#calc"><span class="nn">06</span>Planner</a></li>
+<li><a href="#tier"><span class="nn">07</span>Catalyst</a></li>
+<li><a href="#week"><span class="nn">08</span>Weekly</a></li>
+</ul>
+</div>
+</nav>
+
+<section id="prep">
+<div class="wrap">
+<h2><span class="num">00</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Prep week</h2>
+<p class="lede">Patch 12.1 went live 11 Aug; Season 2 opens 18 Aug. The raid, ranked keys, Bountiful Delves and the Great Vault are all shut until then &mdash; but Mythic 0 and Heroic Altar of Fangs are open, and <b>that gear carries into week one.</b> This list disappears when the season starts.</p>
+
+<div class="checkbar"><span id="prepCount"></span><button class="minibtn2" id="prepClear">Clear ticks</button></div>
+<ul class="check" id="prepcheck"></ul>
+<p class="saveline" id="prepSave"></p>
+</div>
+</section>
+
+<section id="ladder">
+<div class="wrap">
+<h2><span class="num">01</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>The item level ladder</h2>
+<p class="lede">Five upgrade tracks, one shared item level axis. <b>Equip whichever piece is higher right now; spend crests only on the track with the higher ceiling.</b></p>
+
+<div class="legend">
+<span><i class="dot" style="background:var(--adv)"></i>Adventurer</span>
+<span><i class="dot" style="background:var(--vet)"></i>Veteran</span>
+<span><i class="dot" style="background:var(--champ)"></i>Champion</span>
+<span><i class="dot" style="background:var(--hero)"></i>Hero</span>
+<span><i class="dot" style="background:var(--myth)"></i>Myth</span>
+</div>
+
+<div class="ladder-split">
+
+<div class="ladder-shell">
+<div class="ladder-head">
+<div>ilvl</div><div>Adv</div><div>Vet</div><div>Champ</div><div>Hero</div><div>Myth</div>
+</div>
+<div class="ladder-body" id="ladderBody"></div>
+</div>
+
+<div class="drop-col">
+
+<div class="panel">
+<div class="panel-head">Mythic+ &mdash; end of dungeon</div>
+<table>
+<thead><tr><th>Key</th><th>Track</th><th>ilvl</th></tr></thead>
+<tbody>
+<tr><td>Mythic 0</td><td><span class="tag champ">Champion 1/6</span></td><td class="n">292</td></tr>
+<tr><td>+2</td><td><span class="tag champ">Champion 2/6</span></td><td class="n">295</td></tr>
+<tr><td>+3</td><td><span class="tag champ">Champion 2/6</span></td><td class="n">295</td></tr>
+<tr><td>+4</td><td><span class="tag champ">Champion 3/6</span></td><td class="n">298</td></tr>
+<tr><td>+5</td><td><span class="tag champ">Champion 4/6</span></td><td class="n">302</td></tr>
+<tr><td>+6</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">302</td></tr>
+<tr><td>+7</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">302</td></tr>
+<tr><td>+8</td><td><span class="tag hero">Hero 2/6</span></td><td class="n">305</td></tr>
+<tr><td>+9</td><td><span class="tag hero">Hero 2/6</span></td><td class="n">305</td></tr>
+<tr><td>+10 and up</td><td><span class="tag hero">Hero 3/6</span></td><td class="n">308</td></tr>
+</tbody>
+</table>
+<div class="panel-foot">End-of-dungeon loot stops improving at +10. Above that you run for crests, vault quality and score.</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">The Venomous Abyss &mdash; all difficulties</div>
+<table>
+<thead><tr>
+<th>Boss</th>
+<th>LFR <span style="color:var(--vet)">Vet</span></th>
+<th>Normal <span style="color:var(--champ)">Champ</span></th>
+<th>Heroic <span style="color:var(--hero)">Hero</span></th>
+<th>Mythic <span style="color:var(--myth)">Myth</span></th>
+</tr></thead>
+<tbody>
+<tr><td><a class="bosslink" href="#boss-nekzali">Nek'zali the Soulcoiler</a></td><td class="ilvl-n c-vet">279</td><td class="ilvl-n c-champ">292</td><td class="ilvl-n c-hero">305</td><td class="ilvl-n c-myth">318</td></tr>
+<tr><td><a class="bosslink" href="#boss-sentinels">Entombed Sentinels</a></td><td class="ilvl-n c-vet">282</td><td class="ilvl-n c-champ">295</td><td class="ilvl-n c-hero">308</td><td class="ilvl-n c-myth">321</td></tr>
+<tr><td><a class="bosslink" href="#boss-explorers">The Lost Explorers</a></td><td class="ilvl-n c-vet">282</td><td class="ilvl-n c-champ">295</td><td class="ilvl-n c-hero">308</td><td class="ilvl-n c-myth">321</td></tr>
+<tr><td><a class="bosslink" href="#boss-vashnik">Vashnik the Malignant</a></td><td class="ilvl-n c-vet">285</td><td class="ilvl-n c-champ">298</td><td class="ilvl-n c-hero">311</td><td class="ilvl-n c-myth">324</td></tr>
+<tr><td><a class="bosslink" href="#boss-sszorak">Sszorak</a></td><td class="ilvl-n c-vet">285</td><td class="ilvl-n c-champ">298</td><td class="ilvl-n c-hero">311</td><td class="ilvl-n c-myth">324</td></tr>
+<tr><td><a class="bosslink" href="#boss-twinfangs">The Twin Fangs</a></td><td class="ilvl-n c-vet">285</td><td class="ilvl-n c-champ">298</td><td class="ilvl-n c-hero">311</td><td class="ilvl-n c-myth">324</td></tr>
+<tr><td><a class="bosslink" href="#boss-altar"><b>The Coiled Altar</b></a></td><td class="ilvl-n c-vet">289</td><td class="ilvl-n c-champ">302</td><td class="ilvl-n c-hero">315</td><td class="ilvl-n"><span class="c-cap">344</span></td></tr>
+<tr><td><a class="bosslink" href="#boss-ulatek"><b>Ula'tek</b></a></td><td class="ilvl-n c-vet">289</td><td class="ilvl-n c-champ">302</td><td class="ilvl-n c-hero">315</td><td class="ilvl-n"><span class="c-cap">344</span></td></tr>
+<tr><td>Nymrissa Wavecaller <em style="color:var(--bone-dim);font-size:13px">&mdash; Tidebound Grotto lair</em></td><td class="ilvl-n c-vet">279</td><td class="ilvl-n c-champ">292</td><td class="ilvl-n c-hero">305</td><td class="ilvl-n c-myth">318</td></tr>
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+</section>
+
+<section id="drops">
+<div class="wrap">
+<h2><span class="num">02</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Dungeons and world content</h2>
+<p class="lede">Delves and Prey. Neither is where you finish the season, but both are cheap vault slots and steady crest income &mdash; and Delves are the only solo route to Hero track.</p>
+
+<div class="panel" style="margin-bottom:24px">
+<div class="panel-head">Season 2 Mythic+ pool<span class="q">8 dungeons</span></div>
+<div class="lootgrp"><div class="g">Midnight</div><div class="items"><span class="item">Altar of Fangs</span><span class="item">Murder Row</span><span class="item">Den of Nalorakk</span><span class="item">The Blinding Vale</span><span class="item">Voidscar Arena</span></div></div>
+<div class="lootgrp"><div class="g">Returning</div><div class="items"><span class="item">King's Rest</span><span class="item">Temple of Sethraliss</span><span class="item">Ruby Life Pools</span></div></div>
+<div class="panel-foot">Season 1's entire pool retires &mdash; nothing carries over. All eight are on Heroic and Mythic 0 during prep week, so learn them before the timer starts on 18 Aug. Altar of Fangs is the only brand-new one: three bosses, ending on Zul'jan.</div>
+</div>
+
+<div class="grid2 rows">
+<div>
+<h3>Delves &mdash; bountiful chest</h3>
+<table class="tight">
+<thead><tr><th>Tier</th><th>Track</th><th>ilvl</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><span class="tag adv">Adventurer 1/6</span></td><td class="n">266</td></tr>
+<tr><td>2</td><td><span class="tag adv">Adventurer 2/6</span></td><td class="n">269</td></tr>
+<tr><td>3</td><td><span class="tag adv">Adventurer 3/6</span></td><td class="n">272</td></tr>
+<tr><td>4</td><td><span class="tag adv">Adventurer 4/6</span></td><td class="n">276</td></tr>
+<tr><td>5</td><td><span class="tag vet">Veteran 1/6</span></td><td class="n">279</td></tr>
+<tr><td>6</td><td><span class="tag vet">Veteran 2/6</span></td><td class="n">282</td></tr>
+<tr><td>7</td><td><span class="tag champ">Champion 1/6</span></td><td class="n">292</td></tr>
+<tr><td>8 and up</td><td><span class="tag champ">Champion 2/6</span></td><td class="n">295</td></tr>
+</tbody>
+</table>
+<p class="card" style="margin-top:16px"><b>The table above is the Bountiful Coffer.</b> A regular delve chest caps at Adventurer regardless of tier &mdash; the ladder only applies when you spend a Restored Coffer Key on a Bountiful Delve. Four Bountiful Delves are active per day. A Delver's Bounty used in Tier 8 or higher before the last boss spawns an extra chest holding a <span class="tag hero">Hero 1/6</span> piece.</p>
+<div class="panel" style="margin-top:16px">
+<div class="panel-head">Restored Coffer Keys<span class="q">6 per week</span></div>
+<table class="tight"><tbody>
+<tr><td>Conversion</td><td class="n">100 shards = 1 key</td></tr>
+<tr><td>Weekly shard cap</td><td class="n">600 &mdash; six keys</td></tr>
+<tr><td>Rares</td><td class="n">50 shards each</td></tr>
+<tr><td>Weekly quest caches</td><td class="n">100 shards</td></tr>
+<tr><td>Also drop from</td><td>Delves, Prey, zone events, assignments</td></tr>
+<tr><td>Extra beyond the cap</td><td>Naleidea Rivergleam sells 2 per week once unlocked</td></tr>
+</tbody></table>
+<div class="panel-foot">Shards convert to keys automatically when you enter a Delve. The cap is easy to hit &mdash; a few minutes of rares and your weekly quests will normally cover all six, so unspent keys are wasted income rather than savings.</div>
+</div>
+
+</div>
+<div>
+<h3>Prey hunts</h3>
+<table class="tight">
+<thead><tr><th>Difficulty</th><th>Track</th><th>ilvl</th></tr></thead>
+<tbody>
+<tr><td>Normal</td><td><span class="tag adv">Adventurer 1/6</span></td><td class="n">266</td></tr>
+<tr><td>Hard</td><td><span class="tag vet">Veteran 1/6</span></td><td class="n">279</td></tr>
+<tr><td>Nightmare</td><td><span class="tag champ">Champion 1/6</span></td><td class="n">292</td></tr>
+</tbody>
+</table>
+<p class="card" style="margin-top:14px"><b>Prey is a vault filler, not a loot source.</b> The hunt itself never drops Hero track, but a Nightmare hunt puts Hero 1/6 in your vault. Fast to run, so it is the cheapest way to fill the world row.</p>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head">Trovehunter's Bounty<span class="q">1 per week</span></div>
+<table class="tight"><tbody>
+<tr><td>Guaranteed from</td><td><a class="item" href="https://www.wowhead.com/quest=98515/vaults-of-atalutek-a-toxic-tour" target="_blank" rel="noopener">Vaults of Atal'Utek: A Toxic Tour</a></td></tr>
+<tr><td>Pick it up in</td><td>Vaults of Atal'Utek &mdash; the underground area below the Coiled Isle, same place as the raid entrance</td></tr>
+<tr><td>Prerequisite</td><td>Finish the 12.1 campaign, which unlocks the Coiled Isle</td></tr>
+<tr><td>Also drops from</td><td>Delve side chests and Nemesis encounters, low chance</td></tr>
+<tr><td>Cap</td><td class="n">One per character per week</td></tr>
+<tr><td>Coffer Key needed?</td><td><b>No</b> &mdash; keys are only for the Bountiful chest</td></tr>
+<tr><td>Pays</td><td><span class="tag hero">Hero 1/6</span> &middot; <span class="ilvl-n">305</span> from a bonus chest</td></tr>
+</tbody></table>
+<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>During prep week this is the only Hero-track gear in the game.</b> Also called Delver's Bounty or a Delve Map.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="loot">
+<div class="wrap">
+<h2><span class="num">03</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Raid loot &mdash; The Venomous Abyss</h2>
+<p class="lede">Every confirmed drop from the eight Venomous Abyss bosses, plus the Bind-on-Equip trash drops. Dungeon loot is not here &mdash; Mythic+ gear is random from the dungeon pool rather than fixed per boss. Item levels shown as <span class="c-vet">LFR</span> / <span class="c-champ">Normal</span> / <span class="c-hero">Heroic</span> / <span class="c-myth">Mythic</span>. Names link to Wowhead for stats and effects.</p>
+
+<div class="panel" style="margin-bottom:24px">
+<div class="panel-head">Getting there<span class="q">Vaults of Atal'Utek, Coiled Isle</span></div>
+<table class="tight"><tbody>
+<tr><td>The zone</td><td>Coiled Isle &mdash; fly east of Zul'Aman, or take the portal once unlocked</td></tr>
+<tr><td>Raid entrance</td><td class="mono">/way #2509 47.2 21.7</td><td>Inside the Vaults, on the north side<span class="verify">map id, verify</span></td></tr>
+<tr><td>Gate of the Serpent Eye</td><td class="mono">/way #2512 43.3 44.2</td><td><b>Use this one</b> &mdash; drops you at the Eastern Amani Outpost, closest to the raid bridge</td></tr>
+<tr><td>Gate of the Eastern Fang</td><td class="mono">/way #2512 45.4 65.9</td><td>Southern approach</td></tr>
+<tr><td>Gate of the Western Fang</td><td class="mono">/way #2512 31.8 64.9</td><td>Southern approach</td></tr>
+</tbody></table>
+<div class="panel-foot">The Vaults are an underground zone below the Coiled Isle holding the raid, the Altar of Fangs dungeon and the world events. Three gates lead down; Serpent Eye is the short walk. Waypoints need TomTom or similar. Map IDs came from the PTR &mdash; if a waypoint lands you somewhere odd, that is why.</div>
+</div>
+
+<div class="loot-grid" id="lootGrid"></div>
+
+<h3>Tier tokens by class</h3>
+<div class="grid2">
+<div class="panel">
+<div class="panel-head">Token family &rarr; classes</div>
+<table>
+<tbody>
+<tr><td><b>Venomwoven</b></td><td>Mage, Priest, Warlock</td></tr>
+<tr><td><b>Venomcured</b></td><td>Demon Hunter, Druid, Monk, Rogue</td></tr>
+<tr><td><b>Venomcast</b></td><td>Evoker, Hunter, Shaman</td></tr>
+<tr><td><b>Venomforged</b></td><td>Death Knight, Paladin, Warrior</td></tr>
+</tbody>
+</table>
+</div>
+<div class="panel">
+<div class="panel-head">Boss &rarr; tier slot</div>
+<table>
+<tbody>
+<tr><td>Entombed Sentinels</td><td>Hands</td></tr>
+<tr><td>The Lost Explorers</td><td>Shoulders</td></tr>
+<tr><td>Vashnik the Malignant</td><td>Chest</td></tr>
+<tr><td>Sszorak</td><td>Legs</td></tr>
+<tr><td>The Twin Fangs</td><td>Head</td></tr>
+<tr><td>Ula'tek</td><td>Any slot &mdash; Slumbering Coil Curio</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="callout warn" style="margin-top:26px">
+<b>Built from Wowhead’s live rewards guide, updated 10 Aug.</b> The raid does not open until 18 Aug, so tuning and spec eligibility can still shift. Confirm the in-game Dungeon Journal before spending a Voidcore.
+</div>
+</div>
+</section>
+
+<section id="vault">
+<div class="wrap">
+<h2><span class="num">04</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>The Great Vault</h2>
+<p class="lede">Season 2 rewrote the raid row: every raid vault slot now pays out one difficulty above what you actually killed. A Heroic clear hands you Myth track. This is the single biggest change of the patch, and it means Heroic stays worth clearing all season instead of falling off in week four.</p>
+
+<div class="grid3">
+<div class="card">
+<h4>Raid row</h4>
+<p style="margin-bottom:12px">2 / 4 / 6 bosses unlock the three slots.</p>
+<table style="font-size:13px">
+<tbody>
+<tr><td>LFR</td><td><span class="tag champ">Champion 1/6</span></td></tr>
+<tr><td>Normal</td><td><span class="tag hero">Hero 1/6</span></td></tr>
+<tr><td>Heroic</td><td><span class="tag myth">Myth 1/6</span></td></tr>
+<tr><td>Mythic</td><td><span class="tag myth">Myth 6/6</span></td></tr>
+<tr><td>Mythic, last 2</td><td><span class="tag myth">Myth 9/6</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h4>Dungeon row</h4>
+<p style="margin-bottom:12px">1 / 4 / 8 keys unlock the three slots.</p>
+<table style="font-size:13px">
+<tbody>
+<tr><td>+2 – +3</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">305</td></tr>
+<tr><td>+4 – +5</td><td><span class="tag hero">Hero 2/6</span></td><td class="n">308</td></tr>
+<tr><td>+6</td><td><span class="tag hero">Hero 3/6</span></td><td class="n">311</td></tr>
+<tr><td>+7 – +9</td><td><span class="tag hero">Hero 4/6</span></td><td class="n">311</td></tr>
+<tr><td>+10 and up</td><td><span class="tag myth">Myth 1/6</span></td><td class="n">318</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h4>World row</h4>
+<p style="margin-bottom:12px">Delve tier drives quality. Caps below Myth.</p>
+<table style="font-size:13px">
+<tbody>
+<tr><td>Delve 1–4</td><td><span class="tag vet">Veteran 1–4/6</span></td></tr>
+<tr><td>Delve 5</td><td><span class="tag champ">Champion 1/6</span></td></tr>
+<tr><td>Delve 6</td><td><span class="tag champ">Champion 3/6</span></td></tr>
+<tr><td>Delve 7</td><td><span class="tag champ">Champion 4/6</span></td></tr>
+<tr><td>Delve 8</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">305</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="callout">
+<b>+10 is the number that matters.</b> Below +10 your dungeon vault tops out at Hero 4/6 (311). At +10 it becomes Myth 1/6 (318) and stays there no matter how high you push. If you only get one thing out of this page: eight keys at +10 every week.
+</div>
+<div class="callout">
+<b>Nebulous Voidcore as a vault pick.</b> From your second vault of the season onward, with any three slots filled, you can take a bonus roll instead of an item. Worth it when all nine slots are junk for your spec.
+</div>
+</div>
+</section>
+
+<section id="crests">
+<div class="wrap">
+<h2><span class="num">05</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Mistcrests</h2>
+<p class="lede">Season 2's upgrade currency, replacing Dawncrests. Five types, one per track, and they don't cross over — Hero gear takes Hero Mistcrests and nothing else. Season 1 currency is gone; anything you were hoarding converted at the season flip.</p>
+
+<div class="calc-split">
+
+<div class="panel crestpanel">
+<div class="panel-head">Mythic+ payout<span class="q">per completed key</span></div>
+<table class="tight crest-t">
+<thead><tr><th>Key</th><th>Crest</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>+2</td><td><span class="tag hero">Hero</span></td><td class="n">10</td></tr>
+<tr><td>+3</td><td><span class="tag hero">Hero</span></td><td class="n">12</td></tr>
+<tr><td>+4</td><td><span class="tag hero">Hero</span></td><td class="n">14</td></tr>
+<tr><td>+5</td><td><span class="tag hero">Hero</span></td><td class="n">16</td></tr>
+<tr><td>+6</td><td><span class="tag hero">Hero</span></td><td class="n">18</td></tr>
+<tr><td>+7</td><td><span class="tag myth">Myth</span></td><td class="n">10</td></tr>
+<tr><td>+8</td><td><span class="tag myth">Myth</span></td><td class="n">12</td></tr>
+<tr><td>+9</td><td><span class="tag myth">Myth</span></td><td class="n">14</td></tr>
+<tr><td>+10</td><td><span class="tag myth">Myth</span></td><td class="n">16</td></tr>
+<tr><td>+11</td><td><span class="tag myth">Myth</span></td><td class="n">18</td></tr>
+<tr><td>+12 and up</td><td><span class="tag myth">Myth</span></td><td class="n">20</td></tr>
+</tbody>
+</table>
+<div class="panel-foot">+7 is the Myth Mistcrest breakpoint &mdash; a much lower bar than most people assume.</div>
+</div>
+
+<div class="calc-right">
+
+<div class="panel">
+<div class="panel-head">Raid payout<span class="q">per boss</span></div>
+<table class="tight crest-t">
+<thead><tr><th>Difficulty</th><th>Crest</th><th>Amount</th></tr></thead>
+<tbody>
+<tr><td>Normal</td><td><span class="tag champ">Champion</span></td><td class="n">10&ndash;20</td></tr>
+<tr><td>Normal &mdash; Ula'tek</td><td><span class="tag champ">Champion</span> + <span class="tag hero">Hero</span></td><td class="n">20 + 10</td></tr>
+<tr><td>Heroic</td><td><span class="tag hero">Hero</span></td><td class="n">10&ndash;20</td></tr>
+<tr><td>Heroic &mdash; Ula'tek</td><td><span class="tag hero">Hero</span> + <span class="tag myth">Myth</span></td><td class="n">20 + 10</td></tr>
+<tr><td>Mythic</td><td><span class="tag myth">Myth</span></td><td class="n">10&ndash;20</td></tr>
+</tbody>
+</table>
+<div class="panel-foot">Ula'tek pays a bonus 10 crests of the tier above, on top of the normal payout.</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">Every other source</div>
+<table class="tight src-t">
+<tbody>
+<tr><td><span class="tag adv">Adventurer</span></td><td>Repeatable outdoor events, Tier 4 Delves</td></tr>
+<tr><td><span class="tag vet">Veteran</span></td><td>Outdoor events, LFR, Heroic dungeons, Delve T5&ndash;6, Trovehunter's Bounty T4&ndash;5</td></tr>
+<tr><td><span class="tag champ">Champion</span></td><td>Weekly outdoor events, Normal raid, Mythic 0, Delve T7&ndash;10, Trovehunter's T6&ndash;7</td></tr>
+<tr><td><span class="tag hero">Hero</span></td><td>Heroic raid, M+ (see table), Delve T11, Trovehunter's T8+</td></tr>
+<tr><td><span class="tag myth">Myth</span></td><td>Mythic raid, M+ &plus;7 and above</td></tr>
+</tbody>
+</table>
+<div class="panel-foot">Each crest type has its own weekly cap. Once you hit it, further rewards pay the same quantity one tier down instead of nothing.<span class="verify">cap value unverified</span></div>
+</div>
+
+</div>
+</div>
+
+</div>
+</section>
+
+<section id="calc">
+<div class="wrap">
+<h2><span class="num">06</span>Upgrade planner<a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a></h2>
+<p class="lede">Enter what you're holding and what's in your bags. Every rank costs the same 20 crests, but the item level steps are not equal &mdash; the planner finds the combination that buys the most item level with the crests you actually have.</p>
+
+<div class="panel" style="margin-bottom:24px">
+<div class="panel-head">Import from SimulationCraft<span class="q"><button id="simcGo" class="minibtn">Import</button> <button id="simcClear" class="minibtn">Clear</button></span></div>
+<div style="padding:12px 14px">
+<textarea id="simcIn" rows="3" placeholder="Type /simc in game, copy the whole box, paste it here."></textarea>
+<div id="simcMsg" class="simcmsg">Pastes your equipped gear and crest balances straight into the planner. Nothing leaves your browser.</div>
+</div>
+</div>
+
+<div class="calc-split">
+
+<div class="panel gearpanel">
+<div class="panel-head">Your gear<span class="q"><span id="pieceCount"></span> <button id="addPiece" class="minibtn">+ Add slot</button></span></div>
+<div class="prow phead"><span></span><span>Slot</span><span>Equipped</span><span>Track</span><span>Rank</span><span></span></div>
+<div id="pieceList"></div>
+<div class="panel-foot">Tick a row to include it in the plan. Rows are unticked automatically when the item has no live upgrade track.</div>
+</div>
+
+<div class="calc-right">
+
+<div class="panel">
+<div class="panel-head">Your crests</div>
+<div class="crestbox" id="crestBox"></div>
+<div class="lootgrp" style="grid-template-columns:104px 1fr">
+<div class="g">Character</div>
+<div><select id="altSel"><option value="20">Main &mdash; 20 per rank</option><option value="10">Alt &mdash; 10 per rank</option></select></div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">What's left<span class="q" id="leftTotal"></span></div>
+<div id="leftOut"></div>
+</div>
+
+</div>
+</div>
+
+<div class="panel" style="margin-top:24px">
+<div class="panel-head">The plan<span class="q" id="planTotals"></span></div>
+<div id="planOut"></div>
+</div>
+
+<div class="panel" style="margin-top:24px">
+<div class="panel-head">Better in your bags<span class="q" id="bagCount"></span></div>
+<div id="bagOut"><div class="plan-empty">Import a SimulationCraft string and anything in your bags with a higher ceiling than what you're wearing shows up here.</div></div>
+</div>
+
+<div class="callout" style="margin-top:26px">
+<b>Equip and invest are separate decisions.</b> Wear the highest item level you own. Crests only ever go into the piece with the highest ceiling, even when it is currently the lower number.
+</div>
+<div class="callout">
+<b>Check for free upgrades first.</b> Hero track items go from 1/6 to 5/6 for nothing if you already hold a higher-ranked piece in that slot. The planner cannot see your slots, so confirm at the vendor before spending.
+</div>
+</div>
+</section>
+
+<section id="tier">
+<div class="wrap">
+<h2><span class="num">07</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Catalyst, Venomstones and crafting</h2>
+<p class="lede">The systems that move gear sideways rather than up the track. All three are slow-drip resources &mdash; the mistakes are spending them early on something you replace, or forgetting they exist until week ten.</p>
+
+<div class="grid2">
+
+<div class="panel">
+<div class="panel-head">The Catalyst<span class="q">live now</span></div>
+<table class="tight"><tbody>
+<tr><td>Charge currency</td><td>Crystallized Venomblight Manaflux</td></tr>
+<tr><td>Convertible slots</td><td>Head, Shoulder, Chest, Hands, Legs</td></tr>
+<tr><td>Minimum gear</td><td>Veteran track or higher, PvE only</td></tr>
+<tr><td>First charge</td><td>At season start &mdash; 18 Aug</td></tr>
+<tr><td>Then</td><td>One more every two weeks</td></tr>
+<tr><td>Bonus charge</td><td>Once per season, from <em>Midnight Season 2: Serpent Scion</em></td></tr>
+</tbody></table>
+<div class="panel-foot"><b>The change that matters this season:</b> converted pieces keep the original item's secondary stats and any cantrip effect. Tier no longer forces you onto fixed secondaries, so a well-itemised drop stays well-itemised after conversion. Venomcursed armour from Ula'tek survives conversion with its effect intact.</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">Ascendant Venomstones<span class="q">later in the season</span></div>
+<table class="tight"><tbody>
+<tr><td>What it does</td><td>Pushes one item past the Myth cap to the 8/6 band<span class="verify">~341, verify</span></td></tr>
+<tr><td>Cost</td><td>10 Venomstones per item</td></tr>
+<tr><td>Eligible</td><td>Weapons and trinkets already at Hero 6/6 or Myth 6/6</td></tr>
+<tr><td>Adds</td><td>The <em>Ascendant Voidforged</em> tag</td></tr>
+<tr><td>Where</td><td>Ascendant Nilhammer, Bazaar of Silvermoon, beside the Catalyst</td></tr>
+<tr><td>Drops from</td><td>Heroic and Mythic raid, keys +10 and up, Tier 11 Bountiful Delves, Nightmare Prey</td></tr>
+</tbody></table>
+<div class="panel-foot">Weapons first, then trinkets. Never spend one on a piece that is not already maxed &mdash; the item has to be at 6/6 before a stone will take.</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">Crafting and sparks</div>
+<table class="tight"><tbody>
+<tr><td>Spark</td><td>Spark of Tides</td></tr>
+<tr><td>Per craft</td><td>2&ndash;4 sparks, used whole</td></tr>
+<tr><td>Weekly income</td><td>One spark per week, per character</td></tr>
+<tr><td>Crest reagent</td><td>Regular Mistcrests &mdash; no enchanted crests this season</td></tr>
+</tbody></table>
+<div class="panel-foot">Sparks come whole rather than as fragments now, so there is no half-spark limbo. Crafted gear sits outside the five tracks, which is why the planner leaves it alone.</div>
+</div>
+
+<div class="panel">
+<div class="panel-head">Bonus rolls &mdash; Nebulous Voidcores</div>
+<table class="tight"><tbody>
+<tr><td>Cost per roll</td><td>1 coin, down from 2</td></tr>
+<tr><td>Available</td><td>From the Vault, week one</td></tr>
+<tr><td>As a Vault pick</td><td>From your second vault, with any three slots filled</td></tr>
+<tr><td>Weekly free roll</td><td>Orin Straylight, Silvermoon, from week 8</td></tr>
+</tbody></table>
+<div class="panel-foot">Take the Vault item early. A Voidcore only beats it once your best vault option is something you already own.</div>
+</div>
+
+</div>
+
+<div class="callout warn" style="margin-top:26px">
+<b>Two numbers still unconfirmed.</b> The weekly Mistcrest cap (widely reported as 100 per type per character, but not from a source I trust) and the exact item level of the Venomstone 8/6 band. Everything else in this section is from Icy Veins and Warcraft Wiki, checked 13 Aug.
+</div>
+</div>
+</section>
+
+<section id="week">
+<div class="wrap">
+<h2><span class="num">08</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>The weekly routine</h2>
+<p class="lede">In priority order by reward, not by time. The full list is a long week &mdash; eight keys at +10 is an evening on its own. <b>If you have an hour, do the last four:</b> the weekly quest, a Prey hunt, your Bountiful Delves and spending crests return the most per minute.</p>
+
+<div class="checkbar"><span id="weekCount"></span><button class="minibtn2" id="weekClear">Clear ticks</button></div>
+<ul class="check" id="checklist"></ul>
+<p class="saveline" id="weekSave"></p>
+</div>
+</section>
+
+<footer>
+<div class="wrap">
+<p><b>GearDock v1.1 beta</b> — updated 13 Aug 2026 for patch 12.1, Midnight Season 2. Item level and crest data from Method's post-launch Season 2 guides (9–10 Aug 2026) and Icy Veins' upgrade track coverage. Numbers marked <span class="verify">verify</span> were not confirmed by a post-launch source. Beta build — tell Troy what looks wrong.</p>
+<p>Season 2 begins 18 Aug 2026. Blizzard tunes reward tracks in the first weeks of a season — if something here disagrees with the game, the game is right.</p>
+</div>
+</footer>
+
+<script>
+const TRACKS = {
+  Adventurer: {key:'adv', ilvls:[266,269,272,276,279,282], derived:true},
+  Veteran:    {key:'vet', ilvls:[279,282,285,289,292,295], derived:true},
+  Champion:   {key:'champ', ilvls:[292,295,298,302,305,308]},
+  Hero:       {key:'hero', ilvls:[305,308,311,315,318,321]},
+  Myth:       {key:'myth', ilvls:[318,321,324,328,331,334]}
+};
+const EXTRA = [{ilvl:341, label:'Myth 8/6', note:'Venomstone'},{ilvl:344, label:'Myth 9/6', note:'Last 2 Mythic bosses'}];
+const CREST_PER_RANK = 20;
+
+/* ---- ladder ---- */
+(function buildLadder(){
+  const levels = new Set();
+  Object.values(TRACKS).forEach(t=>t.ilvls.forEach(i=>levels.add(i)));
+  EXTRA.forEach(e=>levels.add(e.ilvl));
+  const sorted=[...levels].sort((a,b)=>a-b);
+  const order=['Adventurer','Veteran','Champion','Hero','Myth'];
+  const body=document.getElementById('ladderBody');
+  const frag=document.createDocumentFragment();
+
+  sorted.forEach(ilvl=>{
+    const row=document.createElement('div');
+    row.className='lrow';
+    row.dataset.ilvl=ilvl;
+    row.innerHTML='<div class="ilvl">'+ilvl+'</div>';
+    order.forEach(name=>{
+      const t=TRACKS[name];
+      const idx=t.ilvls.indexOf(ilvl);
+      const cell=document.createElement('div');
+      cell.className='cell t-'+t.key;
+      if(idx>-1){
+        cell.innerHTML='<span class="pip">'+(idx+1)+'/6</span>';
+      } else if(name==='Myth'){
+        const ex=EXTRA.find(e=>e.ilvl===ilvl);
+        if(ex) cell.innerHTML='<span class="pip cap">'+ex.label+'</span>';
+      }
+      row.appendChild(cell);
+    });
+    frag.appendChild(row);
+  });
+  body.appendChild(frag);
+
+  body.addEventListener('mouseover',e=>{
+    const r=e.target.closest('.lrow'); if(!r) return;
+    body.querySelectorAll('.lrow.hot').forEach(x=>x.classList.remove('hot'));
+    r.classList.add('hot');
+  });
+  body.addEventListener('mouseleave',()=>{
+    body.querySelectorAll('.lrow.hot').forEach(x=>x.classList.remove('hot'));
+  });
+})();
+
+/* ---- planner ---- */
+const TRACK_NAMES=Object.keys(TRACKS);
+const crestBox=document.getElementById('crestBox');
+const pieceList=document.getElementById('pieceList');
+const altSel=document.getElementById('altSel');
+let pieces=[];
+
+TRACK_NAMES.forEach(n=>{
+  const d=document.createElement('div');
+  d.className='crestin';
+  d.innerHTML='<label for="cr-'+n+'"><span class="tag '+TRACKS[n].key+'">'+n+'</span></label>'
+    +'<input type="number" id="cr-'+n+'" min="0" step="10" value="0" data-track="'+n+'">';
+  crestBox.appendChild(d);
+});
+
+const SLOTS=['Head','Neck','Shoulders','Back','Chest','Wrist','Hands','Waist','Legs','Feet',
+ 'Ring 1','Ring 2','Trinket 1','Trinket 2','Main Hand','Off Hand'];
+
+function usedSlots(skip){return pieces.filter((_,i)=>i!==skip).map(p=>p.slot);}
+
+function slotOptions(cur,skip){
+  const used=usedSlots(skip);
+  return SLOTS.map(sl=>'<option value="'+sl+'"'+(sl===cur?' selected':'')
+    +(used.includes(sl)&&sl!==cur?' disabled':'')+'>'+sl+'</option>').join('');
+}
+
+function refreshSlotSelects(){
+  [...pieceList.querySelectorAll('.prow')].forEach(row=>{
+    const i=+row.dataset.i, sel=row.querySelector('[data-f=slot]');
+    sel.innerHTML=slotOptions(pieces[i].slot,i);
+  });
+  const count=document.getElementById('pieceCount');
+  count.textContent=pieces.length+' / '+SLOTS.length;
+  document.getElementById('addPiece').disabled=pieces.length>=SLOTS.length;
+}
+
+function addPiece(track,rank,slot){
+  if(pieces.length>=SLOTS.length) return;
+  const taken=pieces.map(p=>p.slot);
+  const use=(slot&&!taken.includes(slot))?slot:SLOTS.find(sl=>!taken.includes(sl));
+  const i=pieces.length;
+  pieces.push({slot:use,track:track||'Hero',rank:rank||0,use:true});
+  const row=document.createElement('div');
+  row.className='prow'; row.dataset.i=i;
+  row.innerHTML='<input type="checkbox" data-f="use" checked aria-label="Include in plan">'
+    +'<select data-f="slot"></select>'
+    +'<span class="rowitem none">&mdash;</span>'
+    +'<select data-f="track"><option value="">&mdash;</option>'+TRACK_NAMES.map(n=>'<option'+(n===(track||'Hero')?' selected':'')+'>'+n+'</option>').join('')+'</select>'
+    +'<select data-f="rank"></select>'
+    +'<button class="xbtn" data-f="del" aria-label="Remove slot">&times;</button>';
+  pieceList.appendChild(row);
+  fillRankSel(row);
+  refreshSlotSelects();
+  plan();
+}
+
+function fillRankSel(row){
+  const i=+row.dataset.i, p=pieces[i], t=TRACKS[p.track];
+  const sel=row.querySelector('[data-f=rank]');
+  if(!t){ sel.innerHTML='<option>&mdash;</option>'; sel.disabled=true; return; }
+  sel.disabled=false;
+  sel.innerHTML=t.ilvls.map((il,k)=>'<option value="'+k+'"'+(k===p.rank?' selected':'')+'>'+(k+1)+'/6 · '+il+'</option>').join('');
+}
+
+pieceList.addEventListener('input',e=>{
+  const row=e.target.closest('.prow'); if(!row) return;
+  const i=+row.dataset.i, f=e.target.dataset.f;
+  if(f==='use'){ pieces[i].use=e.target.checked; row.classList.toggle('off',!e.target.checked); }
+  if(f==='slot'){ pieces[i].slot=e.target.value; pieces[i].item=''; row.title='';
+    const ri=row.querySelector('.rowitem'); if(ri){ ri.innerHTML='&mdash;'; ri.classList.add('none'); }
+    refreshSlotSelects(); }
+  if(f==='track'){ pieces[i].track=e.target.value||null; pieces[i].rank=0; fillRankSel(row);
+    if(pieces[i].track && pieces[i].empty){ pieces[i].empty=false; row.classList.remove('empty');
+      const cb=row.querySelector('[data-f=use]'); if(cb) cb.disabled=false; } }
+  if(f==='rank') pieces[i].rank=+e.target.value;
+  plan();
+});
+pieceList.addEventListener('click',e=>{
+  if(e.target.dataset.f!=='del') return;
+  const row=e.target.closest('.prow');
+  pieces.splice(+row.dataset.i,1);
+  row.remove();
+  [...pieceList.querySelectorAll('.prow')].forEach((r,k)=>{r.dataset.i=k;});
+  refreshSlotSelects();
+  plan();
+});
+document.getElementById('addPiece').addEventListener('click',()=>addPiece());
+crestBox.addEventListener('input',plan);
+altSel.addEventListener('change',()=>{plan();renderBags();});
+
+/* exact optimum via group knapsack — ranks cost the same, ilvl steps do not */
+function bestSpend(items,capacity){
+  let dp=new Array(capacity+1).fill(0);
+  let pick=new Array(capacity+1).fill(null).map(()=>[]);
+  items.forEach((it,idx)=>{
+    const ndp=dp.slice(), npick=pick.map(a=>a.slice());
+    for(let c=0;c<=capacity;c++){
+      for(let k=1;k<=it.maxSteps;k++){
+        if(k>c) break;
+        const v=dp[c-k]+it.gain[k];
+        if(v>ndp[c]){ ndp[c]=v; npick[c]=pick[c-k].concat([[idx,k]]); }
+      }
+    }
+    dp=ndp; pick=npick;
+  });
+  return {gain:dp[capacity],steps:pick[capacity]};
+}
+
+function plan(){
+  const out=document.getElementById('planOut');
+  const totals=document.getElementById('planTotals');
+  const leftOut=document.getElementById('leftOut');
+  const leftTotal=document.getElementById('leftTotal');
+  const per=+altSel.value;
+  const budgets={};
+  crestBox.querySelectorAll('input').forEach(i=>budgets[i.dataset.track]=Math.max(0,+i.value||0));
+
+  let rows=[], totalGain=0, totalSpent=0, ledger=[];
+
+  TRACK_NAMES.forEach(tn=>{
+    const t=TRACKS[tn];
+    const budget=budgets[tn]||0;
+    const mine=pieces.map((p,i)=>({p,i})).filter(o=>o.p.track===tn && o.p.track && o.p.rank<5 && o.p.use!==false);
+    let spent=0, why='';
+
+    if(budget===0 && !mine.length) return;
+    if(!mine.length){ why='no upgradeable slot on this track'; }
+    else if(budget<per){ why=budget?'short of a full rank':'none banked'; }
+    else{
+      const cap=Math.floor(budget/per);
+      const items=mine.map(o=>{
+        const max=5-o.p.rank, gain=[0];
+        for(let k=1;k<=max;k++) gain.push(t.ilvls[o.p.rank+k]-t.ilvls[o.p.rank]);
+        return {maxSteps:max,gain:gain};
+      });
+      const res=bestSpend(items,cap);
+      res.steps.forEach(([idx,k])=>{
+        const o=mine[idx], from=o.p.rank, to=from+k;
+        rows.push({track:tn,key:t.key,name:o.p.slot,item:o.p.item||'',
+          from:(from+1)+'/6',to:(to+1)+'/6',fi:t.ilvls[from],ti:t.ilvls[to],
+          cost:k*per,gain:t.ilvls[to]-t.ilvls[from]});
+      });
+      spent=res.steps.reduce((a,[,k])=>a+k,0)*per;
+      totalGain+=res.gain; totalSpent+=spent;
+      const left=budget-spent;
+      why = left===0 ? 'all spent'
+          : left<per ? 'short of another rank'
+          : 'everything on this track is already maxed';
+    }
+    ledger.push({track:tn,key:t.key,left:budget-spent,spent:spent,why:why});
+  });
+
+  /* what's left panel */
+  if(!ledger.length){
+    leftOut.innerHTML='<div class="plan-empty">Enter your crest balances and they will be accounted for here.</div>';
+    leftTotal.textContent='';
+  } else {
+    const banked=ledger.reduce((a,l)=>a+l.left,0);
+    leftTotal.innerHTML=banked?'<span class="gain">'+banked+'</span> unspent':'all spent';
+    leftOut.innerHTML=ledger.map(l=>'<div class="leftrow'+(l.left?'':' spent')+'">'
+      +'<span class="tag '+l.key+'">'+l.track+'</span>'
+      +'<span class="why">'+l.why+'</span>'
+      +'<span class="amt">'+l.left+'</span></div>').join('')
+      +'<div class="panel-foot">Unspent crests carry over, but the weekly cap does not &mdash; 100 per type, per character.</div>';
+  }
+
+  /* the plan */
+  rows.sort((a,b)=>b.gain/b.cost-a.gain/a.cost || b.gain-a.gain);
+  if(!rows.length){
+    out.innerHTML='<div class="plan-empty">Add a slot and some crests and the plan appears here.</div>';
+    totals.textContent='';
+    return;
+  }
+  totals.innerHTML='<span class="gain">+'+totalGain+' ilvl</span> for '+totalSpent+' crests';
+  out.innerHTML='<table class="tight"><thead><tr><th>Spend on</th><th>Track</th><th>From</th><th>To</th>'
+    +'<th>Crests</th><th>Item level</th></tr></thead><tbody>'
+    +rows.map((r,n)=>'<tr'+(n===0?' class="best"':'')+'><td><b>'+r.name+'</b>'+(r.item?'<span class="itemname">'+r.item.replace(/</g,'&lt;')+'</span>':'')+'</td>'
+      +'<td><span class="tag '+r.key+'">'+r.track+'</span></td>'
+      +'<td class="n">'+r.from+' · '+r.fi+'</td><td class="n">'+r.to+' · '+r.ti+'</td>'
+      +'<td class="n">'+r.cost+'</td><td class="n gain">+'+r.gain+'</td></tr>').join('')
+    +'</tbody></table>'
+    +'<div class="panel-foot">Ordered by item level per crest &mdash; the top row is your best buy.</div>';
+}
+
+/* ---- SimulationCraft import ---- */
+let BAGS=[];
+const SIMC_SLOTS={head:'Head',neck:'Neck',shoulder:'Shoulders',back:'Back',chest:'Chest',
+ wrist:'Wrist',hands:'Hands',waist:'Waist',legs:'Legs',feet:'Feet',finger1:'Ring 1',finger2:'Ring 2',
+ trinket1:'Trinket 1',trinket2:'Trinket 2',main_hand:'Main Hand',off_hand:'Off Hand'};
+const CREST_IDS={3442:'Adventurer',3443:'Veteran',3444:'Champion',3445:'Hero',3446:'Myth'};
+
+/* item level -> candidate track+rank. Tracks overlap, so prefer the higher ceiling and flag it. */
+function guessTrack(ilvl){
+  const hits=[];
+  TRACK_NAMES.forEach(tn=>{
+    const k=TRACKS[tn].ilvls.indexOf(ilvl);
+    if(k>-1) hits.push({track:tn,rank:k,cap:TRACKS[tn].ilvls[5]});
+  });
+  if(!hits.length) return null;
+  hits.sort((a,b)=>b.cap-a.cap);
+  return {track:hits[0].track,rank:hits[0].rank,ambiguous:hits.length>1};
+}
+
+/* ---- upgrade-track markers, generated from ItemBonusListGroupEntry.db2 (build 12.1.0.69299) ----
+   Groups 614-618 are the live Midnight Season 2 tracks; 600-613 are prior seasons.
+   bonusId -> [track, sequence].  Sequence 1-6 are the normal ranks; 7+ are the
+   Venomstone / final-boss bands that crests cannot reach. */
+const TRACK_MARKERS={12817:["Adventurer",1],12818:["Adventurer",2],12819:["Adventurer",3],12820:["Adventurer",4],12821:["Adventurer",5],12822:["Adventurer",6],12823:["Adventurer",7],12824:["Adventurer",8],12825:["Veteran",1],12826:["Veteran",2],12827:["Veteran",3],12828:["Veteran",4],12829:["Veteran",5],12830:["Veteran",6],12831:["Veteran",7],12832:["Veteran",8],12833:["Champion",1],12834:["Champion",2],12835:["Champion",3],12836:["Champion",4],12837:["Champion",5],12838:["Champion",6],12839:["Champion",7],12840:["Champion",8],12841:["Hero",1],12842:["Hero",2],12843:["Hero",3],12844:["Hero",4],12845:["Hero",5],12846:["Hero",6],12847:["Hero",7],12848:["Hero",8],12849:["Myth",1],12850:["Myth",2],12851:["Myth",3],12852:["Myth",4],12853:["Myth",5],12854:["Myth",6],12855:["Myth",7],12856:["Myth",8],13848:["Myth",9]};
+const S1_MARKER_SET=new Set([12704,12762,12763,12764,12765,12766,12767,12768,12769,12770,12771,12772,12773,12774,12775,12776,12777,12778,12779,12780,12781,12782,12783,12784,12785,12786,12787,12788,12789,12790,12791,12792,12793,12794,12795,12796,12797,12798,12799,12800,12801,12802,12803,12804,12805,12806,12807,12808,13653,13654]);
+
+/* Resolve an item's real upgrade track from its bonus ids.
+   Live track wins; otherwise a prior-season marker means the track is locked. */
+function markerInfo(line){
+  const bm=line.match(/bonus_id=([\d/]+)/);
+  if(!bm) return {live:null,confirmed:null};
+  const ids=bm[1].split('/').map(Number);
+  for(const id of ids){
+    const t=TRACK_MARKERS[id];
+    if(t) return {live:true, confirmed:[t[0], Math.min(t[1],6)-1], beyond:t[1]>6};
+  }
+  for(const id of ids) if(S1_MARKER_SET.has(id)) return {live:false,confirmed:null};
+  return {live:null,confirmed:null};
+}
+
+function parseSimc(text){
+  const lines=text.split(/\r?\n/);
+  const nameRe=/^#\s*(.+?)\s*\((\d+)\)\s*$/;
+  const slotRe=/^([a-z_0-9]+)=,?id=(\d+)/;
+  const S1_RANK_IDS=[12785,12787,12793,12794,12795,12796,12798,12801,12806];
+  const out={gear:[],bags:[],crests:{},character:''};
+  let last=null;
+  for(const raw of lines){
+    const line=raw.trim();
+    const cm=line.match(/^#\s*([A-Za-z0-9'\-]+)\s+-\s+\w+\s+-\s/);
+    if(cm && !out.character) out.character=cm[1];
+    if(line.startsWith('#')){
+      const body=line.replace(/^#+\s*/,'');
+      const bm=body.match(slotRe);
+      if(bm && SIMC_SLOTS[bm[1]]){
+        out.bags.push({slot:SIMC_SLOTS[bm[1]],id:+bm[2],name:last?last.name:'',ilvl:last?last.ilvl:null,
+          crafted:/crafting_quality=|crafted_stats=/.test(body),mark:markerInfo(body)});
+        last=null; continue;
+      }
+      const uc=line.match(/upgrade_currencies=([^\s]+)/);
+      if(uc){
+        uc[1].split('/').forEach(tok=>{
+          const m=tok.match(/^c:(\d+):(\d+)$/);
+          if(m && CREST_IDS[m[1]]) out.crests[CREST_IDS[m[1]]]=+m[2];
+        });
+      }
+      const nm=line.match(nameRe);
+      last = nm ? {name:nm[1],ilvl:+nm[2]} : null;
+      continue;
+    }
+    const m=line.match(slotRe);
+    if(m && SIMC_SLOTS[m[1]]){
+      out.gear.push({slot:SIMC_SLOTS[m[1]],id:+m[2],name:last?last.name:'',ilvl:last?last.ilvl:null,
+        crafted:/crafting_quality=|crafted_stats=/.test(line),mark:markerInfo(line)});
+    }
+    last=null;
+  }
+  return out;
+}
+
+function applySimc(text){
+  const msg=document.getElementById('simcMsg');
+  msg.className='simcmsg';
+  let data;
+  try{ data=parseSimc(text); }catch(e){ data=null; }
+  if(!data||!data.gear.length){
+    msg.className='simcmsg err';
+    msg.textContent='No gear found in that text. Paste the whole /simc output, including the lines that start with #.';
+    return;
+  }
+  /* rebuild the gear list */
+  pieces=[]; pieceList.innerHTML='';
+  let review=0, skipped=0, crafted=0, stale=0;
+  data.gear.forEach(g=>{
+    if(g.ilvl===null){ skipped++; return; }
+    let guess=guessTrack(g.ilvl);
+    if(g.mark && g.mark.confirmed) guess={track:g.mark.confirmed[0],rank:g.mark.confirmed[1],ambiguous:false};
+    if(!guess){ skipped++; return; }
+    const stale2 = g.mark ? g.mark.live===false : false;
+    const unknown = g.mark ? g.mark.live===null : true;
+    addPiece(guess.track,guess.rank,g.slot);
+    pieces[pieces.length-1].item=g.name;
+    pieces[pieces.length-1].ilvl=g.ilvl;
+    pieces[pieces.length-1].crafted=!!g.crafted;
+    pieces[pieces.length-1].live=!!(g.mark&&g.mark.live===true);
+    if(!pieces[pieces.length-1].live){
+      pieces[pieces.length-1].track=null;
+      const tsel=pieceList.querySelector('.prow[data-i="'+(pieces.length-1)+'"] [data-f=track]');
+      if(tsel){ tsel.value=''; fillRankSel(tsel.closest('.prow')); }
+    }
+    pieces[pieces.length-1].stale=stale2;
+    pieces[pieces.length-1].use=!(g.crafted||stale2||unknown||(g.mark&&g.mark.beyond));
+    const row=pieceList.querySelector('.prow[data-i="'+(pieces.length-1)+'"]');
+    if(row){
+      row.title=g.name+' — item level '+g.ilvl+(g.crafted?' — crafted, not on a standard track':'');
+      if(stale2){ row.title+=' — Season 1 rank marker, track locked'; row.classList.add('stale'); stale++; }
+      if(g.crafted){ row.classList.add('crafted'); crafted++; }
+      else if(!stale2 && (unknown || guess.ambiguous)){ row.classList.add('review'); review++;
+        row.title+=unknown?' — no upgrade-rank marker found, so left out until you confirm it'
+                          :' — item level sits on two tracks, confirm the track'; }
+      const cb=row.querySelector('[data-f=use]'); if(cb) cb.checked=pieces[pieces.length-1].use;
+      row.classList.toggle('off',!pieces[pieces.length-1].use);
+      const ri=row.querySelector('.rowitem');
+      if(ri && g.name){ ri.textContent=g.name+' · '+g.ilvl; ri.classList.remove('none'); }
+    }
+  });
+  /* crests */
+  let crestBits=[];
+  crestBox.querySelectorAll('input').forEach(inp=>{
+    const t=inp.dataset.track;
+    const v=data.crests[t];
+    inp.value = v===undefined ? 0 : v;
+    if(v) crestBits.push(v+' '+t);
+  });
+  /* every slot is always represented; unfilled ones show as empty */
+  SLOTS.forEach(sl=>{
+    if(pieces.some(p=>p.slot===sl)) return;
+    addPiece(null,0,sl);
+    const i=pieces.length-1;
+    pieces[i].track=null; pieces[i].live=false; pieces[i].use=false; pieces[i].empty=true;
+    const row=pieceList.querySelector('.prow[data-i="'+i+'"]');
+    if(row){
+      row.classList.add('off','empty');
+      const cb=row.querySelector('[data-f=use]'); if(cb){ cb.checked=false; cb.disabled=true; }
+      const ri=row.querySelector('.rowitem'); if(ri){ ri.textContent='nothing equipped'; ri.classList.add('none'); }
+      const ts=row.querySelector('[data-f=track]'); if(ts){ ts.value=''; fillRankSel(row); }
+    }
+  });
+  refreshSlotSelects();
+  BAGS=data.bags||[];
+  renderBags();
+  plan();
+
+  const bits=['Imported <b>'+pieces.length+'</b> slots'+(data.character?' from <b>'+data.character+'</b>':'')+'.'];
+  bits.push(crestBits.length?'Crests: <b>'+crestBits.join('</b>, <b>')+'</b>.':'No Mistcrests found in the export.');
+  if(stale) bits.push('<b>'+stale+'</b> item'+(stale>1?'s':'')+' unticked (pink) — a prior-season upgrade track, locked since the patch.');
+  if(crafted) bits.push('<b>'+crafted+'</b> crafted item'+(crafted>1?'s':'')+' unticked (blue) — crafted gear is not on the standard tracks.');
+  if(review) bits.push('<b>'+review+'</b> row'+(review>1?'s':'')+' marked amber and left out — no upgrade track at all, so there is nothing to spend crests on.');
+  if(skipped) bits.push(skipped+' slot'+(skipped>1?'s':'')+' skipped (no Season 2 track matches that item level).');
+  bits.push('Only ticked rows are planned. The in-game tooltip is the truth &mdash; if it shows an Upgrade Level, tick the row.');
+  msg.innerHTML=bits.join(' ');
+}
+
+document.getElementById('simcGo').addEventListener('click',()=>applySimc(document.getElementById('simcIn').value));
+document.getElementById('simcClear').addEventListener('click',()=>{
+  document.getElementById('simcIn').value='';
+  document.getElementById('simcMsg').className='simcmsg';
+  document.getElementById('simcMsg').textContent='Pastes your equipped gear and crest balances straight into the planner. Nothing leaves your browser.';
+});
+
+addPiece('Hero',0,'Main Hand');
+addPiece('Champion',2,'Trinket 1');
+addPiece('Hero',3,'Chest');
+
+/* ---- loot tables ---- */
+const W='https://www.wowhead.com/item=';
+const BOSSES=[
+{slug:'nekzali',name:"Nek'zali the Soulcoiler",ilvl:[279,292,305,318],groups:[
+ ['Armor',[["Initiate's Sacrificial Tights",268236,"Cloth Legs"],["Nek'zali's Spiritwalkers",268218,"Cloth Feet"],["Vestment of the Awakening",268235,"Leather Chest"],["Restless Spirit Shackles",268240,"Leather Wrist"],["Crown of the Eternal Fang",268230,"Mail Helm"],["Soulslither Spaulders",268231,"Mail Shoulders"],["Cursed Reliquary Cincture",268216,"Mail Waist"],["Skullguard of the Risen Sacrifice",268229,"Plate Helm"],["Entombed Cultist's Sabatons",268245,"Plate Feet"]]],
+ ['Weapons',[["Strongblood's Ceremonial Cleaver",268208,"1H Axe"],["Hexing Spiritrender",268203,"1H Dagger"],["Tomb-Creeper's Claw",270930,"1H Fist"],["Bubblefin Splash Guard",268262,"Shield"],["Frostscale's Mystic Frond",268263,"Off-Hand"]]],
+ ['Jewelry',[["Amani Summoning Shawl",268248,"Back"],["Alluring Bubbleband",268266,"Ring"],["Soulcoiler Ritual Vessel",270162,"Trinket — Healers"]]]],
+ note:"No tier token, but the raid's first healer trinket drops here."},
+
+{slug:'sentinels',name:"Entombed Sentinels",ilvl:[282,295,308,321],groups:[
+ ['Armor',[["Venom-Singed Cuffs",268228,"Cloth Wrist"],["Shadow Hunter's Warmask",268219,"Leather Helm"],["Venom Warden's Greaves",268224,"Plate Legs"]]],
+ ['Weapons',[["Ancient Construct's Venomshiv",268204,"1H Dagger"],["Caustic Keeper-Crusher",268198,"2H Mace"],["Spine of the Hissing Abyss",268197,"Off-Hand"]]],
+ ['Jewelry',[["Sentinel's Vitriolic Chain",268250,"Neck"],["Keeper's Seething Core",270165,"Trinket"]]],
+ ['Tier — hands',[["Venomwoven Idol",270910,"Cloth",'tok'],["Venomcured Idol",270911,"Leather",'tok'],["Venomcast Idol",270912,"Mail",'tok'],["Venomforged Idol",270913,"Plate",'tok']]]],
+ note:"Only source of hands tokens."},
+
+{slug:'explorers',name:"The Lost Explorers",ilvl:[282,295,308,321],groups:[
+ ['Armor',[["Errant Scrollsage's Hood",268242,"Cloth Helm"],["Unpossessed Skullsash",268227,"Leather Waist"],["Boots of the Reckless Wayfarer",268258,"Mail Feet"],["Shellbound Bracers",268239,"Plate Wrist"]]],
+ ['Weapons',[["Malevolent Spiritcudgel",268210,"1H Mace"],["Gebbo's Backup Blaster",268200,"Gun"],["Venom-Slashed Scuteward",268196,"Shield"]]],
+ ['Trinkets',[["First Mate's Shellward",270160,"Trinket — Tanks"],["Gebbo's Bottomless Bag",270164,"Trinket"]]],
+ ['Tier — shoulders',[["Venomwoven Remnant",270922,"Cloth",'tok'],["Venomcured Remnant",270923,"Leather",'tok'],["Venomcast Remnant",270924,"Mail",'tok'],["Venomforged Remnant",270925,"Plate",'tok']]]],
+ note:"Tank trinket boss. Only source of shoulder tokens."},
+
+{slug:'vashnik',name:"Vashnik the Malignant",ilvl:[285,298,311,324],groups:[
+ ['Armor',[["Frothing Venom Spaulders",268246,"Leather Shoulders"],["Serpentine Mixing Belt",268254,"Mail Waist"],["Scaled Fiend's Warboots",268260,"Plate Feet"]]],
+ ['Weapons',[["Venomancer's Winged Channeler",268205,"2H Staff"],["Malignant Toothed Edge",268214,"2H Sword"]]],
+ ['Jewelry',[["Vile Alchemist's Band",268249,"Ring"],["Vashnik's Sanguine Rancor",270166,"Trinket"],["Fang of Umbral Malignance",270161,"Trinket"]]],
+ ['Tier — chest',[["Venomwoven Icon",270926,"Cloth",'tok'],["Venomcured Icon",270927,"Leather",'tok'],["Venomcast Icon",270928,"Mail",'tok'],["Venomforged Icon",270929,"Plate",'tok']]]],
+ note:"Chest tokens plus two offensive trinkets."},
+
+{slug:'sszorak',name:"Sszorak",ilvl:[285,298,311,324],groups:[
+ ['Armor',[["Caustic Chain-Wrapped Sash",268257,"Cloth Waist"],["Ruthless Slaughtergrips",268234,"Leather Hands"],["Ferocious Scaleboots",268233,"Mail Feet"]]],
+ ['Weapons',[["Venomous Boneglaive",268201,"1H Warglaive"],["Slithering Savage's Gavel",268206,"1H Mace"]]],
+ ['Jewelry',[["Apex Brute's Claw Ring",268252,"Ring"],["Sszorak's Ferocity",270163,"Trinket"],["Idol of the Howling Nexus",270174,"Trinket"]]],
+ ['Tier — legs',[["Venomwoven Relic",270918,"Cloth",'tok'],["Venomcured Relic",270919,"Leather",'tok'],["Venomcast Relic",270920,"Mail",'tok'],["Venomforged Relic",270921,"Plate",'tok']]]],
+ note:"Only source of legs tokens. Two melee trinkets."},
+
+{slug:'twinfangs',name:"The Twin Fangs",ilvl:[285,298,311,324],groups:[
+ ['Armor',[["Ornaments of the Eternal Coil",268241,"Cloth Shoulders"],["Bespittled Slitherslippers",268261,"Leather Feet"],["Ophidian Fangmail",268223,"Mail Chest"],["Scaleplate Strangulators",268220,"Plate Hands"]]],
+ ['Weapons',[["Ravenous Feaster's Fang",268264,"1H Dagger"]]],
+ ['Jewelry',[["Amulet of the Twin Fangs",268251,"Neck"],["Preternatural Antivenom",270171,"Trinket — Healers"],["Vexhul's Everflowing Gland",270170,"Trinket"]]],
+ ['Tier — helm',[["Venomwoven Effigy",270914,"Cloth",'tok'],["Venomcured Effigy",270915,"Leather",'tok'],["Venomcast Effigy",270916,"Mail",'tok'],["Venomforged Effigy",270917,"Plate",'tok']]]],
+ note:"Last standard token boss and the only helm tokens."},
+
+{slug:'altar',name:"The Coiled Altar",ilvl:[289,302,315,344],groups:[
+ ['Armor',[["Grasps of the Eternal Shadow",268243,"Cloth Hands"],["Cackling Soultreads",268255,"Cloth Feet"],["Sash of the Forlorn Vessel",268256,"Leather Waist"],["Coiled Hex Legguards",268225,"Leather Legs"],["Soulslither Spaulders",268231,"Mail Shoulders"],["Cuisses of the Uncoiled Union",268237,"Mail Legs"],["Reckless Spirit Breastplate",268222,"Plate Chest"],["Girdle of Toxic Regret",268259,"Plate Waist"],["Silken Voodoo Drape",268253,"Back"]]],
+ ['Weapons',[["Baleful Hexblade",268211,"1H Sword"],["Aman'muso, Warlord's Vengeance",268209,"1H Axe — Very Rare",'vr'],["Maze-roa, Warlord's Fury",268213,"2H Axe — Very Rare",'vr']]],
+ ['Trinkets',[["Hex Lord's Dooming Idol",270169,"Trinket"],["Zul'jin's Guillotine Technique",270173,"Trinket"]]]],
+ note:"Both Very Rare axes add Venomfang damage. Guillotine Technique pairs with either."},
+
+{slug:'ulatek',name:"Ula'tek",ilvl:[289,302,315,344],groups:[
+ ['Venomcursed',[["Venomkeeper's Horrific Cowl",271874,"Cloth Helm"],["Gaze of the Coiled Watcher",271875,"Leather Helm"],["Awoken Dreadfang Cuirass",271876,"Mail Chest"],["Chausses of Unbound Rancor",271878,"Plate Legs"]]],
+ ['Weapons',[["Jaw of the Shackled Goddess",268202,"1H Sword"],["Abyssal Broodfiend's Bardiche",268215,"2H Polearm"],["Caustic Repose Greatbow",268207,"Bow"],["Zatha'tek, Breath of Corruption",271093,"1H Dagger — Very Rare",'vr'],["Jan'thrazet, the Soul Fang",271092,"1H Dagger — Very Rare",'vr']]],
+ ['Jewelry',[["Aqirbane Reliquary",268265,"Neck"],["Font of Venomous Rage",270168,"Trinket"],["Voracious Heart of Ula'tek",270175,"Trinket"]]],
+ ['Tier — any',[["Slumbering Coil Curio",270909,"Curio token — any slot",'tok']]],
+ ['Mount',[["Primeval Skyfriend",275658,"Mythic only"]]]],
+ note:"Venomcursed gear buffs one secondary at the cost of others, and keeps the effect through the Catalyst."}
+];
+
+const BOE=[["Venom Rite Mantle",271434,"Cloth Shoulders"],["Slippers of the Hissing Cult",271435,"Cloth Feet"],["Temple Delver's Mystic Helm",271438,"Leather Helm"],["Slitherscale Girdle",271436,"Leather Waist"],["Crushing Coiler Coif",271441,"Mail Helm"],["Greaves of the Noxious Depths",271440,"Mail Feet"],["Pauldrons of the Forgotten Sacrifice",271444,"Plate Shoulders"],["Fanged Brute's Greatbelt",271445,"Plate Waist"],["Bound Serpent's Jade Eye",271638,"Necklace"]];
+
+(function buildLoot(){
+  const grid=document.getElementById('lootGrid');
+  if(!grid) return;
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const chip=([n,id,slot,cls])=>'<a class="item'+(cls?' '+cls:'')+'" href="'+W+id+'" target="_blank" rel="noopener" title="'+esc(slot||'')+'">'+esc(n)+'</a>';
+  BOSSES.forEach(b=>{
+    const rows=b.groups.map(([label,items])=>
+      '<div class="lootgrp"><div class="g">'+esc(label)+'</div><div class="items">'+items.map(chip).join('')+'</div></div>').join('');
+    const q='<span class="q"><span class="c-vet">'+b.ilvl[0]+'</span> / <span class="c-champ">'+b.ilvl[1]
+      +'</span> / <span class="c-hero">'+b.ilvl[2]+'</span> / <span class="c-myth">'+b.ilvl[3]+'</span></span>';
+    const el=document.createElement('div');
+    el.className='panel'; el.id='boss-'+b.slug;
+    el.innerHTML='<div class="panel-head">'+esc(b.name)+q+'</div>'+rows
+      +(b.note?'<div class="panel-foot">'+esc(b.note)+'</div>':'');
+    grid.appendChild(el);
+  });
+  const boe=document.createElement('div');
+  boe.className='panel'; boe.id='boss-boe';
+  boe.innerHTML='<div class="panel-head">Bind on Equip &mdash; trash drops</div>'
+    +'<div class="lootgrp"><div class="g">Tradeable</div><div class="items">'+BOE.map(chip).join('')+'</div></div>'
+    +'<div class="panel-foot">Random secondaries, tradeable and auctionable. Two per armour type plus a neck.</div>';
+  grid.appendChild(boe);
+  const key=document.createElement('p');
+  key.className='vrkey';
+  key.innerHTML='<span class="item vr">Pink outline</span> = Very Rare &nbsp;·&nbsp; <span class="item tok">Amber</span> = tier token &nbsp;·&nbsp; hover any item for its slot';
+  grid.parentNode.insertBefore(key,grid.nextSibling);
+})();
+
+
+/* ---- bag alternatives ---- */
+const SLOT_GROUP=sl=>sl.replace(/ [12]$/,'');
+
+function renderBags(){
+  const out=document.getElementById('bagOut');
+  const count=document.getElementById('bagCount');
+  const per=+altSel.value;
+
+  /* best equipped ceiling per slot group, and the weakest piece in that group */
+  const equipped={};
+  pieces.forEach(p=>{
+    const g=SLOT_GROUP(p.slot);
+    const cur = (p.ilvl!==undefined && p.ilvl!==null) ? p.ilvl : (TRACKS[p.track]?TRACKS[p.track].ilvls[p.rank]:0);
+    /* only a live upgrade track has headroom; anything else is capped where it sits */
+    const cap = (p.live && TRACKS[p.track]) ? TRACKS[p.track].ilvls[5] : cur;
+    if(!equipped[g] || cap<equipped[g].cap) equipped[g]={cap,cur,item:p.item||'',slot:p.slot};
+  });
+
+  /* dedupe bags, keep the highest item level of each name */
+  const seen={};
+  (BAGS||[]).forEach(b=>{
+    if(b.ilvl===null||b.crafted) return;
+    if(!b.mark || b.mark.live!==true) return;   /* no proof it is on a live track */
+    const k=b.slot+'|'+b.name;
+    if(!seen[k]||b.ilvl>seen[k].ilvl) seen[k]=b;
+  });
+
+  const rows=[];
+  Object.values(seen).forEach(b=>{
+    const g=SLOT_GROUP(b.slot), eq=equipped[g];
+    if(!eq) return;
+    let guess=guessTrack(b.ilvl);
+    if(b.mark && b.mark.confirmed) guess={track:b.mark.confirmed[0],rank:b.mark.confirmed[1]};
+    if(!guess) return;
+    const cap=TRACKS[guess.track].ilvls[5];
+    const better = cap>eq.cap || b.ilvl>eq.cur;
+    if(!better) return;
+    const ranks=5-guess.rank;
+    rows.push({slot:g,name:b.name,ilvl:b.ilvl,track:guess.track,key:TRACKS[guess.track].key,
+      rank:guess.rank+1,cap:cap,cost:ranks*per,
+      eqItem:eq.item,eqCur:eq.cur,eqCap:eq.cap,
+      nowBetter:b.ilvl>eq.cur,gain:Math.max(cap-eq.cap, b.ilvl-eq.cur)});
+  });
+  rows.sort((a,b)=>b.gain-a.gain);
+
+  if(!rows.length){
+    out.innerHTML='<div class="plan-empty">Nothing in your bags with a live Season 2 upgrade track beats what you are wearing.</div>';
+    count.textContent='';
+    return;
+  }
+  count.innerHTML='<span class="gain">'+rows.length+'</span> worth a look';
+  const budgets={};
+  crestBox.querySelectorAll('input').forEach(i=>budgets[i.dataset.track]=Math.max(0,+i.value||0));
+  out.innerHTML='<table class="tight bagtbl"><thead><tr><th>Slot</th><th>In your bags</th><th>Track</th>'
+    +'<th>Now</th><th>With your crests</th><th>Gain</th><th>Ceiling</th></tr></thead><tbody>'
+    +rows.map(r=>{
+      const t=TRACKS[r.track], idx=r.rank-1;
+      const afford=Math.min(5-idx, Math.floor((budgets[r.track]||0)/per));
+      const reach=t.ilvls[idx+afford];
+      const spend=afford*per;
+      const landing = afford>0 ? reach : r.ilvl;
+      const gain = landing - r.eqCur;
+      const gtxt = gain>0 ? '<span class="gain">+'+gain+'</span>' : '<span class="sub">'+gain+'</span>';
+      return '<tr><td><b>'+r.slot+'</b><span class="itemname">wearing '+r.eqCur+'</span></td>'
+      +'<td>'+r.name.replace(/</g,'&lt;')+(r.nowBetter?' <span class="nowbtr">wear now</span>':'')+'</td>'
+      +'<td><span class="tag '+r.key+'">'+r.track+' '+r.rank+'/6</span></td>'
+      +'<td class="n">'+r.ilvl+'</td>'
+      +'<td class="n">'+(afford>0?'<span class="gain">'+reach+'</span> <span class="sub">for '+spend+'</span>':'<span class="sub">no crests</span>')+'</td>'
+      +'<td class="n">'+gtxt+'</td>'
+      +'<td class="n">'+r.cap+'</td></tr>';
+    }).join('')
+    +'</tbody></table>'
+    +'<div class="panel-foot">Gain compares what your crests reach today against the item level you are wearing in that slot. Only items carrying a live Season 2 upgrade marker appear here. Ceiling is where the piece ends up fully upgraded. &ldquo;With your crests&rdquo; is how far your current balance takes it today. Item level only &mdash; stats and set bonuses are not considered.</div>';
+}
+
+/* ---- storage: localStorage where the browser allows it, memory where it doesn't ---- */
+const Store=(()=>{
+  let ok=false; const mem={};
+  try{const k='__gd__';window.localStorage.setItem(k,'1');window.localStorage.removeItem(k);ok=true;}catch(e){ok=false;}
+  return{
+    persistent:ok,
+    get(k){try{return ok?window.localStorage.getItem(k):(k in mem?mem[k]:null);}catch(e){return null;}},
+    set(k,v){try{ok?window.localStorage.setItem(k,v):mem[k]=v;}catch(e){mem[k]=v;}},
+    del(k){try{ok?window.localStorage.removeItem(k):delete mem[k];}catch(e){delete mem[k];}}
+  };
+})();
+
+/* NA weekly reset: Tuesday 15:00 UTC — 8am PT / 10am CT */
+const SEASON_START=Date.UTC(2026,7,18,15,0,0);
+const resetPeriod=now=>Math.floor((now-SEASON_START)/604800000);
+
+/* ---- checklists ---- */
+const TASKS=[
+  ['Eight Mythic+ keys at +10 or higher','Fills all three dungeon vault slots at Myth 1/6 and caps Myth Mistcrests fast.','3 vault slots','4–6 hrs'],
+  ['Six raid bosses at the highest difficulty you clear','Fills all three raid slots. Heroic pays out Myth 1/6 this season.','3 vault slots','2–3 hrs'],
+  ['Kill Ula\'tek on your best difficulty','Drops a bonus 10 crests of the tier above, on top of the normal payout.','+10 crests','with the raid'],
+  ['Four Bountiful Delves with Restored Coffer Keys','Cheapest Champion and Hero track pieces in the game. Six keys available per week.','Up to Hero 1/6','45–60 min'],
+  ['Trovehunter\'s Bounty in a Tier 8+ Delve','One guaranteed Hero 1/6 per character. Do not click the map before Tier 8 is unlocked.','Hero 1/6 · 305','15 min'],
+  ['One Nightmare Prey hunt','Fastest way to fill the world vault row at Hero 1/6.','1 vault slot','10 min'],
+  ['Spend crests before reset','Unspent crests carry over but the weekly cap does not. Upgrade your longest-term pieces first.','—','5 min'],
+  ['Check Catalyst charges','Convert toward 2-set and 4-set. Secondaries are preserved this season.','Tier progress','5 min'],
+  ['Bank Venomstones for weapon and trinkets','Do not spend these on armor. Armor gets replaced; weapons do not.','341 band','—']
+];
+
+const PREP=[
+  ['Finish the Midnight campaign on your main','The Coiled Isle story assumes it is done, and it gates the 12.1 chapter.','Unlocks 12.1','1–2 hrs'],
+  ['Mythic 0 world tour','Champion 1/6 per dungeon, no keystone needed, and it all carries into week one.','292 per slot','2–3 hrs'],
+  ['Learn Altar of Fangs at Heroic','Three bosses, new this patch, and it is in the M+ pool on the 18th. Free reps now.','Route knowledge','40 min'],
+  ['Bank sparks, do not spend them','Crafted pieces are worth more once you know which slots your luck skipped.','Week 1 fills','—'],
+  ['Spend every Season 1 currency','None of it carries over. Dawncrests convert to nothing on the 18th.','Use it or lose it','20 min'],
+  ['Pull alts to 90','Level cap did not move. An alt at 90 now is an alt earning crests on day one.','Alt income','varies'],
+  ['Skip Season 1 gear upgrades','Everything shifts ~46 item levels. A Myth 6/6 piece today is Veteran-tier next week.','Do not bother','—']
+];
+
+function buildCheck(cfg){
+  const ul=document.getElementById(cfg.listId);
+  const countEl=document.getElementById(cfg.countId);
+  const saveEl=document.getElementById(cfg.saveId);
+  const clearBtn=document.getElementById(cfg.clearId);
+  if(!ul) return;
+
+  if(cfg.weekly){
+    const p=String(resetPeriod(Date.now()));
+    if(Store.get(cfg.key+':period')!==p){ Store.del(cfg.key); Store.set(cfg.key+':period',p); }
+  }
+
+  let saved={};
+  try{ saved=JSON.parse(Store.get(cfg.key)||'{}')||{}; }catch(e){ saved={}; }
+
+  cfg.tasks.forEach((t,i)=>{
+    const li=document.createElement('li');
+    const id=cfg.key.replace(/[^a-z]/g,'')+i;
+    const box=document.createElement('input');
+    box.type='checkbox'; box.id=id; box.dataset.i=i; box.checked=!!saved[i];
+    const lab=document.createElement('label');
+    lab.className='task'; lab.setAttribute('for',id);
+    const b=document.createElement('b'); b.textContent=t[0];
+    const s=document.createElement('span'); s.textContent=t[1];
+    lab.appendChild(b); lab.appendChild(s);
+    const y=document.createElement('span');
+    y.className='yield'; y.textContent=t[2];
+    const tm=document.createElement('span'); tm.className='tmin'; tm.textContent=t[3];
+    y.appendChild(tm);
+    li.appendChild(box); li.appendChild(lab); li.appendChild(y);
+    ul.appendChild(li);
+  });
+
+  const persist=()=>{
+    const boxes=ul.querySelectorAll('input[type=checkbox]');
+    const out={}; let done=0;
+    boxes.forEach(b=>{ if(b.checked){ out[b.dataset.i]=1; done++; } });
+    Store.set(cfg.key,JSON.stringify(out));
+    countEl.textContent=done+' of '+boxes.length+' done';
+  };
+
+  ul.addEventListener('change',e=>{ if(e.target.type==='checkbox') persist(); });
+  clearBtn.addEventListener('click',()=>{
+    ul.querySelectorAll('input[type=checkbox]').forEach(b=>b.checked=false);
+    persist();
+  });
+  persist();
+
+  if(Store.persistent){
+    saveEl.textContent=cfg.weekly
+      ? 'Ticks save in this browser and clear themselves at Tuesday reset.'
+      : 'Ticks save in this browser.';
+    saveEl.className='saveline';
+  }else{
+    saveEl.textContent='This browser is blocking local storage, so ticks last until you reload. Open the file from your own site or straight off disk and they will stick.';
+    saveEl.className='saveline warn';
+  }
+}
+
+buildCheck({key:'geardock:prep',tasks:PREP,weekly:false,listId:'prepcheck',countId:'prepCount',saveId:'prepSave',clearId:'prepClear'});
+buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',countId:'weekCount',saveId:'weekSave',clearId:'weekClear'});
+
+/* ---- countdown ---- */
+(function(){
+  const clock=document.getElementById('clock');
+  const label=document.getElementById('clockLabel');
+  const digits=document.getElementById('clockDigits');
+  const note=document.getElementById('clockNote');
+  const prepSec=document.getElementById('prep');
+  const navPrep=document.getElementById('navPrep');
+  const pad=v=>(v<10?'0':'')+v;
+  const unit=(v,l)=>'<div class="unit"><b>'+pad(v)+'</b><i>'+l+'</i></div>';
+
+  function tick(){
+    const left=SEASON_START-Date.now();
+    if(left>0){
+      const s=Math.floor(left/1000);
+      label.textContent='Season 2 opens in';
+      digits.innerHTML=unit(Math.floor(s/86400),'days')+unit(Math.floor(s%86400/3600),'hrs')
+        +unit(Math.floor(s%3600/60),'min')+unit(s%60,'sec');
+      note.textContent='Tuesday 18 August, 8am PT / 10am CT. Prep week is section 00 below — everything in it is progress you keep.';
+      clock.classList.remove('live');
+      return;
+    }
+    const into=Math.abs(left);
+    const week=Math.floor(into/604800000)+1;
+    const r=Math.floor((604800000-into%604800000)/1000);
+    label.textContent='Season 2 · week '+week+' · reset in';
+    digits.innerHTML=unit(Math.floor(r/86400),'days')+unit(Math.floor(r%86400/3600),'hrs')+unit(Math.floor(r%3600/60),'min');
+    note.textContent='Vault progress and crest caps roll over at reset. The crests themselves carry; the unused portion of the weekly cap does not.';
+    clock.classList.add('live');
+    if(prepSec&&!prepSec.classList.contains('prep-done')){
+      prepSec.classList.add('prep-done');
+      if(navPrep) navPrep.style.display='none';
+    }
+  }
+  tick();
+  setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
