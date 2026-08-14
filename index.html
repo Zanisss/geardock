@@ -84,6 +84,8 @@ h3{font-family:var(--display);font-size:20.4px;text-transform:uppercase;letter-s
 .items{display:flex;flex-wrap:wrap;gap:5px}
 .item{display:inline-block;font-size:13.5px;padding:2px 8px;border-radius:2px;background:var(--abyss-3);color:var(--bone);text-decoration:none;border:1px solid transparent}
 .item:hover,.item:focus-visible{border-color:var(--venom);color:var(--venom)}
+.item .st{font-family:var(--mono);font-size:11px;color:var(--bone-dim);margin-left:7px;letter-spacing:.04em}
+.item:hover .st,.item:focus-visible .st{color:var(--venom);opacity:.75}
 .item.vr{box-shadow:inset 0 0 0 1px rgba(212,85,122,.5)}
 .item.tok{background:rgba(217,138,43,.13)}
 .crestbox{display:grid;grid-template-columns:1fr 1fr;gap:0}
@@ -1176,6 +1178,8 @@ addPiece('Hero',3,'Chest');
 
 /* ---- loot tables ---- */
 const W='https://www.wowhead.com/item=';
+const STATS={268196:"HA/CR",268197:"MA/HA",268198:"CR/HA",268200:"HA/MA",268201:"MA/CR",268202:"HA",268203:"MA/CR",268204:"HA/VE",268205:"MA/HA",268206:"CR/MA",268207:"CR",268208:"MA/CR",268209:"MA/HA",268210:"MA/CR",268211:"HA/MA",268213:"CR/MA",268214:"HA/MA",268215:"MA",268216:"CR/VE",268218:"CR/MA",268219:"MA/VE",268220:"CR/HA",268222:"HA/MA",268223:"HA/CR",268224:"HA/MA",268225:"MA/HA",268227:"CR/MA",268228:"MA/CR",268229:"HA/CR",268230:"CR/MA",268231:"MA/CR",268233:"MA/HA",268234:"MA/CR",268235:"HA/MA",268236:"MA/VE",268237:"HA/MA",268239:"MA/CR",268240:"CR/HA",268241:"HA/VE",268242:"HA/CR",268243:"HA/CR",268245:"CR/HA",268246:"CR/MA",268248:"CR/VE",268249:"MA/CR",268250:"HA/CR",268251:"MA/HA",268252:"CR/HA",268253:"MA/HA",268254:"MA/HA",268255:"HA/MA",268256:"MA/HA",268257:"HA/MA",268258:"CR/MA",268259:"CR/MA",268260:"MA/HA",268261:"CR/HA",268262:"MA/HA",268263:"CR/MA",268264:"MA/CR",268265:"CR",268266:"HA/VE",270168:"MA",270169:"HA",270171:"CR",270174:"MA",270175:"CR",270930:"HA/CR",271092:"HA",271093:"CR",271874:"MA",271875:"HA",271876:"CR",271878:"MA"};
+
 const BOSSES=[
 {slug:'nekzali',name:"Nek'zali the Soulcoiler",ilvl:[279,292,305,318],groups:[
  ['Armor',[["Initiate's Sacrificial Tights",268236,"Cloth Legs"],["Nek'zali's Spiritwalkers",268218,"Cloth Feet"],["Vestment of the Awakening",268235,"Leather Chest"],["Restless Spirit Shackles",268240,"Leather Wrist"],["Crown of the Eternal Fang",268230,"Mail Helm"],["Soulslither Spaulders",268231,"Mail Shoulders"],["Cursed Reliquary Cincture",268216,"Mail Waist"],["Skullguard of the Risen Sacrifice",268229,"Plate Helm"],["Entombed Cultist's Sabatons",268245,"Plate Feet"]]],
@@ -1239,7 +1243,10 @@ const BOE=[["Venom Rite Mantle",271434,"Cloth Shoulders"],["Slippers of the Hiss
   const grid=document.getElementById('lootGrid');
   if(!grid) return;
   const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  const chip=([n,id,slot,cls])=>'<a class="item'+(cls?' '+cls:'')+'" href="'+W+id+'" target="_blank" rel="noopener" title="'+esc(slot||'')+'">'+esc(n)+'</a>';
+  const chip=([n,id,slot,cls])=>{
+    const st=STATS[id]?'<span class="st">'+STATS[id]+'</span>':'';
+    return '<a class="item'+(cls?' '+cls:'')+'" href="'+W+id+'" target="_blank" rel="noopener" data-st="'+(STATS[id]||'')+'" title="'+esc(slot||'')+'">'+esc(n)+st+'</a>';
+  };
   BOSSES.forEach(b=>{
     const rows=b.groups.map(([label,items])=>
       '<div class="lootgrp"><div class="g">'+esc(label)+'</div><div class="items">'+items.map(chip).join('')+'</div></div>').join('');
@@ -1259,7 +1266,7 @@ const BOE=[["Venom Rite Mantle",271434,"Cloth Shoulders"],["Slippers of the Hiss
   grid.appendChild(boe);
   const key=document.createElement('p');
   key.className='vrkey';
-  key.innerHTML='<span class="item vr">Pink outline</span> = Very Rare &nbsp;·&nbsp; <span class="item tok">Amber</span> = tier token &nbsp;·&nbsp; hover any item for its slot';
+  key.innerHTML='<span class="item vr">Pink outline</span> = Very Rare &nbsp;·&nbsp; <span class="item tok">Amber</span> = tier token &nbsp;·&nbsp; <span class="st">CR HA VE MA</span> = crit, haste, versatility, mastery &nbsp;·&nbsp; hover any item for its slot';
   grid.parentNode.insertBefore(key,grid.nextSibling);
 })();
 
