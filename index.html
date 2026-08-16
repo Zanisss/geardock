@@ -684,11 +684,6 @@ footer a{color:var(--bone-dim)}
 <div id="planOut"></div>
 </div>
 
-<div class="panel" style="margin-top:24px">
-<div class="panel-head">Better in your bags<span class="q" id="bagCount"></span></div>
-<div id="bagOut"><div class="plan-empty">Import a SimulationCraft string and anything in your bags with a higher ceiling than what you're wearing shows up here.</div></div>
-</div>
-
 <div class="callout" style="margin-top:26px">
 <b>Equip and invest are separate decisions.</b> Wear the highest item level you own. Crests only ever go into the piece with the highest ceiling, even when it is currently the lower number.
 </div>
@@ -838,6 +833,7 @@ const CREST_PER_RANK = 20;
 
 /* ---- planner ---- */
 const TRACK_NAMES=Object.keys(TRACKS);
+const SLOT_GROUP=sl=>sl.replace(/ [12]$/,'');
 const crestBox=document.getElementById('crestBox');
 const pieceList=document.getElementById('pieceList');
 const altSel=document.getElementById('altSel');
@@ -924,7 +920,7 @@ pieceList.addEventListener('click',e=>{
 });
 document.getElementById('addPiece').addEventListener('click',()=>addPiece());
 crestBox.addEventListener('input',plan);
-altSel.addEventListener('change',()=>{plan();renderBags();});
+altSel.addEventListener('change',plan);
 
 /* exact optimum via group knapsack — ranks cost the same, ilvl steps do not */
 function bestSpend(items,capacity){
@@ -953,22 +949,18 @@ function plan(){
   const budgets={};
   crestBox.querySelectorAll('input').forEach(i=>budgets[i.dataset.track]=Math.max(0,+i.value||0));
 
-  /* what you are actually wearing in each slot group, weakest piece of a pair */
+  /* what you are wearing, kept per slot so Ring 1/2 and Trinket 1/2 stay independent */
   const worn={};
   pieces.forEach(p=>{
     if(!p.item) return;
     const g=SLOT_GROUP(p.slot);
     const cur=(p.ilvl!==undefined&&p.ilvl!==null)?p.ilvl:(TRACKS[p.track]?TRACKS[p.track].ilvls[p.rank]:0);
-    if(worn[g]===undefined||cur<worn[g].cur) worn[g]={cur:cur,item:p.item};
+    (worn[g]=worn[g]||[]).push({cur:cur,item:p.item});
   });
 
-  /* every live-track piece you own, equipped or sitting in a bag.
-     Per slot the investment target is the highest ceiling, then the highest item level. */
-  const cand={};
-  const offer=(g,o)=>{
-    const b=cand[g];
-    if(!b||o.cap>b.cap||(o.cap===b.cap&&o.ilvl>b.ilvl)) cand[g]=o;
-  };
+  /* every live-track piece you own, equipped or sitting in a bag */
+  const pool={};
+  const offer=(g,o)=>{ (pool[g]=pool[g]||[]).push(o); };
   pieces.forEach(p=>{
     if(p.use===false||!p.live||!p.track||!TRACKS[p.track]) return;
     const g=SLOT_GROUP(p.slot);
@@ -986,24 +978,39 @@ function plan(){
   });
 
   let rows=[], totalGain=0, totalSpent=0, ledger=[];
+  const cand=[];
 
-  /* step one is always the free swaps */
-  Object.keys(cand).forEach(g=>{
-    const c=cand[g];
-    if(!c.bag) return;
-    const now=worn[g]?worn[g].cur:0;
-    if(c.ilvl<=now&&c.cap<=now) return;
-    const g2=c.ilvl-now;
-    rows.push({kind:'equip',track:c.track,key:TRACKS[c.track].key,name:c.slot,item:c.item,
-      from:worn[g]?('wearing '+now):'empty slot',to:(c.rank+1)+'/6 &middot; '+c.ilvl,
-      cost:0,gain:g2,ceiling:c.cap});
-    if(g2>0) totalGain+=g2;
+  /* Pick the best N pieces per slot group, N being how many of that slot you wear.
+     Highest ceiling wins, then highest item level. Bag picks displace your weakest
+     worn piece in that group, so a second trinket is planned as its own decision. */
+  Object.keys(pool).forEach(g=>{
+    const capN=(g==='Ring'||g==='Trinket')?2:1;
+    const dedup={};
+    pool[g].forEach(c=>{ const k=c.item+'|'+c.ilvl; if(!dedup[k]||c.cap>dedup[k].cap) dedup[k]=c; });
+    const chosen=Object.keys(dedup).map(k=>dedup[k])
+      .sort((a,b)=>b.cap-a.cap||b.ilvl-a.ilvl).slice(0,capN);
+    const bench=(worn[g]||[]).map(w=>w.cur).sort((a,b)=>a-b);
+    /* an already-equipped pick keeps its own slot, so take it off the bench */
+    chosen.filter(c=>!c.bag).forEach(c=>{
+      const i=bench.indexOf(c.ilvl); if(i>-1) bench.splice(i,1);
+    });
+    chosen.forEach(c=>{
+      cand.push(c);
+      if(!c.bag) return;
+      const now=bench.length?bench.shift():0;
+      if(c.ilvl<=now&&c.cap<=now) return;
+      const d=c.ilvl-now;
+      rows.push({kind:'equip',track:c.track,key:TRACKS[c.track].key,name:c.slot,item:c.item,
+        from:now?('wearing '+now):'empty slot',to:(c.rank+1)+'/6 &middot; '+c.ilvl,
+        cost:0,gain:d,ceiling:c.cap});
+      if(d>0) totalGain+=d;
+    });
   });
 
   TRACK_NAMES.forEach(tn=>{
     const t=TRACKS[tn];
     const budget=budgets[tn]||0;
-    const mine=Object.keys(cand).map(g=>cand[g]).filter(c=>c.track===tn&&c.rank<5);
+    const mine=cand.filter(c=>c.track===tn&&c.rank<5);
     let spent=0, why='';
 
     if(budget===0&&!mine.length) return;
@@ -1058,7 +1065,7 @@ function plan(){
     let msg;
     if(!filled.length)
       msg='Add a slot and some crests, or paste a SimulationCraft export, and the plan appears here.';
-    else if(!Object.keys(cand).length)
+    else if(!cand.length)
       msg='<b>Nothing you own is on a live Season 2 track</b> &mdash; not equipped, not in your bags. '
          +'Prior-season gear is frozen where it sits, so there is nothing to buy yet. '
          +(banked?'Your '+banked+' crests carry over and will go into the first live-track piece you pick up.':'');
@@ -1244,7 +1251,6 @@ function applySimc(text){
   });
   refreshSlotSelects();
   BAGS=data.bags||[];
-  renderBags();
   plan();
 
   const bits=['Imported <b>'+pieces.length+'</b> slots'+(data.character?' from <b>'+data.character+'</b>':'')+'.'];
@@ -1363,99 +1369,7 @@ const BOE=[["Venom Rite Mantle",271434,"Cloth Shoulders"],["Slippers of the Hiss
 })();
 
 
-/* ---- bag alternatives ---- */
-const SLOT_GROUP=sl=>sl.replace(/ [12]$/,'');
-
-function renderBags(){
-  const out=document.getElementById('bagOut');
-  const count=document.getElementById('bagCount');
-  const per=+altSel.value;
-
-  /* best equipped ceiling per slot group, and the weakest piece in that group */
-  const equipped={};
-  pieces.forEach(p=>{
-    const g=SLOT_GROUP(p.slot);
-    const cur = (p.ilvl!==undefined && p.ilvl!==null) ? p.ilvl : (TRACKS[p.track]?TRACKS[p.track].ilvls[p.rank]:0);
-    /* only a live upgrade track has headroom; anything else is capped where it sits */
-    const cap = (p.live && TRACKS[p.track]) ? TRACKS[p.track].ilvls[5] : cur;
-    if(!equipped[g] || cap<equipped[g].cap) equipped[g]={cap,cur,item:p.item||'',slot:p.slot};
-  });
-
-  /* dedupe bags, keep the highest item level of each name */
-  const seen={};
-  (BAGS||[]).forEach(b=>{
-    if(b.ilvl===null||b.crafted) return;
-    if(!b.mark || b.mark.live!==true) return;   /* no proof it is on a live track */
-    const k=b.slot+'|'+b.name;
-    if(!seen[k]||b.ilvl>seen[k].ilvl) seen[k]=b;
-  });
-
-  const rows=[];
-  Object.values(seen).forEach(b=>{
-    const g=SLOT_GROUP(b.slot), eq=equipped[g];
-    if(!eq) return;
-    let guess=guessTrack(b.ilvl);
-    if(b.mark && b.mark.confirmed) guess={track:b.mark.confirmed[0],rank:b.mark.confirmed[1]};
-    if(!guess) return;
-    const cap=TRACKS[guess.track].ilvls[5];
-    const better = cap>eq.cap || b.ilvl>eq.cur;
-    if(!better) return;
-    const ranks=5-guess.rank;
-    rows.push({slot:g,name:b.name,ilvl:b.ilvl,track:guess.track,key:TRACKS[guess.track].key,
-      rank:guess.rank+1,cap:cap,cost:ranks*per,
-      eqItem:eq.item,eqCur:eq.cur,eqCap:eq.cap,
-      nowBetter:b.ilvl>eq.cur,gain:Math.max(cap-eq.cap, b.ilvl-eq.cur)});
-  });
-  rows.sort((a,b)=>b.gain-a.gain);
-
-  if(!rows.length){
-    out.innerHTML='<div class="plan-empty">Nothing in your bags with a live Season 2 upgrade track beats what you are wearing.</div>';
-    count.textContent='';
-    return;
-  }
-  const budgets={};
-  crestBox.querySelectorAll('input').forEach(i=>budgets[i.dataset.track]=Math.max(0,+i.value||0));
-
-  /* Allocate each track's crests down the list, best gain first, so eight rows on one
-     track cannot each claim the same balance. */
-  const purse={}; TRACK_NAMES.forEach(tn=>purse[tn]=budgets[tn]||0);
-  let funded=0;
-  rows.forEach(r=>{
-    const idx=r.rank-1;
-    const left=purse[r.track]||0;
-    const afford=Math.min(5-idx, Math.floor(left/per));
-    r.afford=afford;
-    r.spend=afford*per;
-    r.reach=TRACKS[r.track].ilvls[idx+afford];
-    r.shortBy=afford>0?0:Math.max(0,r.cost-left);
-    r.starved=(afford===0 && (budgets[r.track]||0)>0);
-    purse[r.track]=left-r.spend;
-    if(afford>0) funded++;
-  });
-  count.innerHTML='<span class="gain">'+rows.length+'</span> worth a look'
-    +(funded<rows.length?' &middot; <span class="sub">crests cover '+funded+'</span>':'');
-  out.innerHTML='<table class="tight bagtbl"><thead><tr><th>Slot</th><th>In your bags</th><th>Track</th>'
-    +'<th>Now</th><th>With your crests</th><th>Gain</th><th>Ceiling</th></tr></thead><tbody>'
-    +rows.map(r=>{
-      const afford=r.afford, reach=r.reach, spend=r.spend;
-      const landing = afford>0 ? reach : r.ilvl;
-      const gain = landing - r.eqCur;
-      const gtxt = gain>0 ? '<span class="gain">+'+gain+'</span>' : '<span class="sub">'+gain+'</span>';
-      return '<tr><td><b>'+r.slot+'</b><span class="itemname">wearing '+r.eqCur+'</span></td>'
-      +'<td>'+r.name.replace(/</g,'&lt;')+(r.nowBetter?' <span class="nowbtr">wear now</span>':'')+'</td>'
-      +'<td><span class="tag '+r.key+'">'+r.track+' '+r.rank+'/6</span></td>'
-      +'<td class="n">'+r.ilvl+'</td>'
-      +'<td class="n">'+(afford>0
-            ? '<span class="gain">'+reach+'</span> <span class="sub">for '+spend+'</span>'
-            : r.starved
-              ? '<span class="sub">crests spent above &middot; needs '+r.shortBy+'</span>'
-              : '<span class="sub">no crests</span>')+'</td>'
-      +'<td class="n">'+gtxt+'</td>'
-      +'<td class="n">'+r.cap+'</td></tr>';
-    }).join('')
-    +'</tbody></table>'
-    +'<div class="panel-foot"><b>Your crests are shared down this list, not per row.</b> Each track&rsquo;s balance is spent on the biggest gain first, so a row reading &ldquo;crests spent above&rdquo; is reachable only once you bank more. Gain compares what your crests reach today against the item level you are wearing in that slot. Only items carrying a live Season 2 upgrade marker appear here. Ceiling is where the piece ends up fully upgraded. &ldquo;With your crests&rdquo; is how far your current balance takes it today. Item level only &mdash; stats and set bonuses are not considered.</div>';
-}
+/* Bag items are folded straight into the plan above, so there is no separate panel. */
 
 /* ---- storage: localStorage where the browser allows it, memory where it doesn't ---- */
 const Store=(()=>{
