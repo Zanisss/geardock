@@ -953,37 +953,80 @@ function plan(){
   const budgets={};
   crestBox.querySelectorAll('input').forEach(i=>budgets[i.dataset.track]=Math.max(0,+i.value||0));
 
+  /* what you are actually wearing in each slot group, weakest piece of a pair */
+  const worn={};
+  pieces.forEach(p=>{
+    if(!p.item) return;
+    const g=SLOT_GROUP(p.slot);
+    const cur=(p.ilvl!==undefined&&p.ilvl!==null)?p.ilvl:(TRACKS[p.track]?TRACKS[p.track].ilvls[p.rank]:0);
+    if(worn[g]===undefined||cur<worn[g].cur) worn[g]={cur:cur,item:p.item};
+  });
+
+  /* every live-track piece you own, equipped or sitting in a bag.
+     Per slot the investment target is the highest ceiling, then the highest item level. */
+  const cand={};
+  const offer=(g,o)=>{
+    const b=cand[g];
+    if(!b||o.cap>b.cap||(o.cap===b.cap&&o.ilvl>b.ilvl)) cand[g]=o;
+  };
+  pieces.forEach(p=>{
+    if(p.use===false||!p.live||!p.track||!TRACKS[p.track]) return;
+    const g=SLOT_GROUP(p.slot);
+    offer(g,{slot:g,item:p.item||g,track:p.track,rank:p.rank,
+      ilvl:TRACKS[p.track].ilvls[p.rank],cap:TRACKS[p.track].ilvls[5],bag:false});
+  });
+  (BAGS||[]).forEach(b=>{
+    if(b.ilvl===null||b.crafted) return;
+    if(!b.mark||b.mark.live!==true) return;
+    const gt=b.mark.confirmed?{track:b.mark.confirmed[0],rank:b.mark.confirmed[1]}:guessTrack(b.ilvl);
+    if(!gt||!TRACKS[gt.track]) return;
+    const g=SLOT_GROUP(b.slot);
+    offer(g,{slot:g,item:b.name,track:gt.track,rank:gt.rank,
+      ilvl:TRACKS[gt.track].ilvls[gt.rank],cap:TRACKS[gt.track].ilvls[5],bag:true});
+  });
+
   let rows=[], totalGain=0, totalSpent=0, ledger=[];
+
+  /* step one is always the free swaps */
+  Object.keys(cand).forEach(g=>{
+    const c=cand[g];
+    if(!c.bag) return;
+    const now=worn[g]?worn[g].cur:0;
+    if(c.ilvl<=now&&c.cap<=now) return;
+    const g2=c.ilvl-now;
+    rows.push({kind:'equip',track:c.track,key:TRACKS[c.track].key,name:c.slot,item:c.item,
+      from:worn[g]?('wearing '+now):'empty slot',to:(c.rank+1)+'/6 &middot; '+c.ilvl,
+      cost:0,gain:g2,ceiling:c.cap});
+    if(g2>0) totalGain+=g2;
+  });
 
   TRACK_NAMES.forEach(tn=>{
     const t=TRACKS[tn];
     const budget=budgets[tn]||0;
-    const mine=pieces.map((p,i)=>({p,i})).filter(o=>o.p.track===tn && o.p.track && o.p.rank<5 && o.p.use!==false);
+    const mine=Object.keys(cand).map(g=>cand[g]).filter(c=>c.track===tn&&c.rank<5);
     let spent=0, why='';
 
-    if(budget===0 && !mine.length) return;
-    if(!mine.length){ why='no upgradeable slot on this track'; }
+    if(budget===0&&!mine.length) return;
+    if(!mine.length){ why='nothing you own is on this track'; }
     else if(budget<per){ why=budget?'short of a full rank':'none banked'; }
     else{
-      const cap=Math.floor(budget/per);
-      const items=mine.map(o=>{
-        const max=5-o.p.rank, gain=[0];
-        for(let k=1;k<=max;k++) gain.push(t.ilvls[o.p.rank+k]-t.ilvls[o.p.rank]);
+      const capSteps=Math.floor(budget/per);
+      const items=mine.map(c=>{
+        const max=5-c.rank, gain=[0];
+        for(let k=1;k<=max;k++) gain.push(t.ilvls[c.rank+k]-t.ilvls[c.rank]);
         return {maxSteps:max,gain:gain};
       });
-      const res=bestSpend(items,cap);
+      const res=bestSpend(items,capSteps);
       res.steps.forEach(([idx,k])=>{
-        const o=mine[idx], from=o.p.rank, to=from+k;
-        rows.push({track:tn,key:t.key,name:o.p.slot,item:o.p.item||'',
-          from:(from+1)+'/6',to:(to+1)+'/6',fi:t.ilvls[from],ti:t.ilvls[to],
-          cost:k*per,gain:t.ilvls[to]-t.ilvls[from]});
+        const c=mine[idx], from=c.rank, to=from+k;
+        rows.push({kind:'upgrade',track:tn,key:t.key,name:c.slot,item:c.item,bag:c.bag,
+          from:(from+1)+'/6 &middot; '+t.ilvls[from],to:(to+1)+'/6 &middot; '+t.ilvls[to],
+          cost:k*per,gain:t.ilvls[to]-t.ilvls[from],ceiling:c.cap});
       });
       spent=res.steps.reduce((a,[,k])=>a+k,0)*per;
       totalGain+=res.gain; totalSpent+=spent;
       const left=budget-spent;
-      why = left===0 ? 'all spent'
-          : left<per ? 'short of another rank'
-          : 'everything on this track is already maxed';
+      why = left===0?'all spent':left<per?'short of another rank':'everything on this track is already maxed';
     }
     ledger.push({track:tn,key:t.key,left:budget-spent,spent:spent,why:why});
   });
@@ -999,39 +1042,56 @@ function plan(){
       +'<span class="tag '+l.key+'">'+l.track+'</span>'
       +'<span class="why">'+l.why+'</span>'
       +'<span class="amt">'+l.left+'</span></div>').join('')
-      +'<div class="panel-foot">Unspent crests carry over, but the weekly cap does not &mdash; 100 per type, per character.</div>';
+      +'<div class="panel-foot">Unspent crests carry over, but the weekly cap does not.</div>';
   }
 
-  /* the plan */
-  rows.sort((a,b)=>b.gain/b.cost-a.gain/a.cost || b.gain-a.gain);
+  /* the plan: free swaps first, then crest spends by item level per crest */
+  rows.sort((a,b)=>{
+    if(a.kind!==b.kind) return a.kind==='equip'?-1:1;
+    if(a.kind==='equip') return b.gain-a.gain;
+    return b.gain/b.cost-a.gain/a.cost||b.gain-a.gain;
+  });
+
   if(!rows.length){
     const banked=TRACK_NAMES.reduce((a,tn)=>a+(budgets[tn]||0),0);
-    const planned=pieces.filter(p=>p.use!==false && p.track);
     const filled=pieces.filter(p=>p.item);
     let msg;
-    if(filled.length && !planned.length && banked)
-      msg='<b>Nothing you are wearing is on a live Season 2 track</b>, so your '+banked+' banked crests have nowhere to land. '
-         +'Prior-season gear is frozen at its current item level &mdash; no amount of crests will move it. '
-         +'Equip the live-track pieces listed under <b>Better in your bags</b> below, then re-import and the plan will fill in.';
-    else if(filled.length && planned.length && !banked)
-      msg='Your gear is loaded and on live tracks. Enter your crest balances above and the plan appears here.';
-    else if(!filled.length)
+    if(!filled.length)
       msg='Add a slot and some crests, or paste a SimulationCraft export, and the plan appears here.';
+    else if(!Object.keys(cand).length)
+      msg='<b>Nothing you own is on a live Season 2 track</b> &mdash; not equipped, not in your bags. '
+         +'Prior-season gear is frozen where it sits, so there is nothing to buy yet. '
+         +(banked?'Your '+banked+' crests carry over and will go into the first live-track piece you pick up.':'');
     else
-      msg='Every ticked slot is already at the top of its track. Nothing left to buy.';
+      msg='Everything you own is already at the top of its track. Nothing left to buy.';
     out.innerHTML='<div class="plan-empty">'+msg+'</div>';
     totals.textContent='';
     return;
   }
-  totals.innerHTML='<span class="gain">+'+totalGain+' ilvl</span> for '+totalSpent+' crests';
-  out.innerHTML='<table class="tight"><thead><tr><th>Spend on</th><th>Track</th><th>From</th><th>To</th>'
+
+  const freeGain=rows.filter(r=>r.kind==='equip'&&r.gain>0).reduce((a,r)=>a+r.gain,0);
+  totals.innerHTML='<span class="gain">+'+totalGain+' ilvl</span>'
+    +(freeGain?' &middot; <span class="sub">'+freeGain+' of it free</span>':'')
+    +' for '+totalSpent+' crests';
+
+  out.innerHTML='<table class="tight"><thead><tr><th>Do this</th><th>Track</th><th>From</th><th>To</th>'
     +'<th>Crests</th><th>Item level</th></tr></thead><tbody>'
-    +rows.map((r,n)=>'<tr'+(n===0?' class="best"':'')+'><td><b>'+r.name+'</b>'+(r.item?'<span class="itemname">'+r.item.replace(/</g,'&lt;')+'</span>':'')+'</td>'
-      +'<td><span class="tag '+r.key+'">'+r.track+'</span></td>'
-      +'<td class="n">'+r.from+' · '+r.fi+'</td><td class="n">'+r.to+' · '+r.ti+'</td>'
-      +'<td class="n">'+r.cost+'</td><td class="n gain">+'+r.gain+'</td></tr>').join('')
+    +rows.map((r,n)=>{
+      const verb = r.kind==='equip'
+        ? '<b>Equip</b>'
+        : (r.bag?'<b>Equip, then upgrade</b>':'<b>Upgrade</b>');
+      const gtxt = r.gain>0?'<span class="gain">+'+r.gain+'</span>'
+                 : r.gain<0?'<span class="sub">'+r.gain+' now &middot; ceiling '+r.ceiling+'</span>'
+                 : '<span class="sub">0</span>';
+      return '<tr'+(n===0?' class="best"':'')+'><td>'+verb+' '+String(r.item).replace(/</g,'&lt;')
+        +'<span class="itemname">'+r.name+'</span></td>'
+        +'<td><span class="tag '+r.key+'">'+r.track+'</span></td>'
+        +'<td class="n">'+r.from+'</td><td class="n">'+r.to+'</td>'
+        +'<td class="n">'+(r.cost?r.cost:'<span class="sub">free</span>')+'</td>'
+        +'<td class="n">'+gtxt+'</td></tr>';
+    }).join('')
     +'</tbody></table>'
-    +'<div class="panel-foot">Ordered by item level per crest &mdash; the top row is your best buy.</div>';
+    +'<div class="panel-foot">Free swaps come first &mdash; do those before spending anything. Crest rows are ordered by item level per crest, and the plan invests in the highest-ceiling piece you own for each slot, which is sometimes still in your bags. A negative row is a ceiling play: lower today, higher once you fund it.</div>';
 }
 
 /* ---- SimulationCraft import ---- */
