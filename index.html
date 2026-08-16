@@ -143,6 +143,7 @@ td.mono{font-family:var(--mono);font-size:13px;white-space:nowrap;color:var(--ve
 .rec b{color:var(--venom);font-weight:600}
 .rec .cost{font-family:var(--mono);font-size:11.5px;color:var(--bone-dim)}
 .rec.hold b{color:var(--hero)}
+.prow.untracked .rowitem{opacity:.6}
 /* a slot with something to do stays lit; everything else keeps its grey */
 .prow.acts{background:rgba(168,216,74,.06);box-shadow:inset 3px 0 0 var(--venom)}
 .prow.acts .rowitem{opacity:1;color:var(--bone)}
@@ -453,7 +454,7 @@ footer a{color:var(--bone-dim)}
 <tr><td>Coffer Key needed?</td><td><b>No</b> &mdash; keys are only for the Bountiful chest</td></tr>
 <tr><td>Pays</td><td><span class="tag hero">Hero 1/6</span> &middot; <span class="ilvl-n">305</span> from a bonus chest</td></tr>
 </tbody></table>
-<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>Not usable during prep week</b> &mdash; the map only triggers in a Bountiful Delve, and Bountiful Delves are offline until 18 Aug. Hold it. Also called Delver's Bounty or a Delve Map.</div>
+<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>During prep week this is the only Hero-track gear in the game.</b> The bounty chest is its own system and works now, even though rotating Bountiful Delves and Coffer Key Shards stay offline until 18 Aug. Also called Delver's Bounty or a Delve Map.</div>
 </div>
 </div>
 </div>
@@ -975,14 +976,21 @@ function plan(){
     offer(g,{slot:g,src:p.slot,item:p.item||g,track:p.track,rank:p.rank,
       ilvl:TRACKS[p.track].ilvls[p.rank],cap:TRACKS[p.track].ilvls[5],bag:false});
   });
+  const plainSwaps=[];
   (BAGS||[]).forEach(b=>{
     if(b.ilvl===null||b.crafted) return;
-    if(!b.mark||b.mark.live!==true) return;
-    const gt=b.mark.confirmed?{track:b.mark.confirmed[0],rank:b.mark.confirmed[1]}:guessTrack(b.ilvl);
-    if(!gt||!TRACKS[gt.track]) return;
     const g=SLOT_GROUP(b.slot);
-    offer(g,{slot:g,item:b.name,track:gt.track,rank:gt.rank,
-      ilvl:TRACKS[gt.track].ilvls[gt.rank],cap:TRACKS[gt.track].ilvls[5],bag:true});
+    const gt=(b.mark&&b.mark.live===true)
+      ? (b.mark.confirmed?{track:b.mark.confirmed[0],rank:b.mark.confirmed[1]}:guessTrack(b.ilvl))
+      : null;
+    if(gt&&TRACKS[gt.track]){
+      offer(g,{slot:g,item:b.name,track:gt.track,rank:gt.rank,
+        ilvl:TRACKS[gt.track].ilvls[gt.rank],cap:TRACKS[gt.track].ilvls[5],bag:true});
+    } else {
+      /* No live track, but item level still beats item level. This is the only advice
+         that works below max level, where nothing carries a Season 2 marker. */
+      plainSwaps.push({slot:g,item:b.name,ilvl:b.ilvl});
+    }
   });
 
   let rows=[], totalGain=0, totalSpent=0, ledger=[];
@@ -1020,6 +1028,25 @@ function plan(){
         cost:0,gain:d,ceiling:c.cap});
       if(d>0) totalGain+=d;
     });
+  });
+
+  /* plain item level swaps, for slots the tracked pass did not already claim */
+  const claimed={}; rows.forEach(r=>{ if(r.dest) claimed[r.dest]=1; });
+  const bestPlain={};
+  plainSwaps.forEach(sw=>{
+    const b=bestPlain[sw.slot];
+    if(!b||sw.ilvl>b.ilvl) bestPlain[sw.slot]=sw;
+  });
+  Object.keys(bestPlain).forEach(g=>{
+    const sw=bestPlain[g];
+    if(cand.some(c=>c.slot===g)) return;
+    const members=SLOTS.filter(sl=>SLOT_GROUP(sl)===g).filter(sl=>!claimed[sl]);
+    const bench=(worn[g]||[]).map(w=>w.cur).sort((a,b)=>a-b);
+    const now=bench.length?bench[0]:0;
+    if(sw.ilvl<=now) return;
+    rows.push({kind:'equip',track:null,key:'none',name:g,dest:members[0]||null,item:sw.item,
+      from:now?('wearing '+now):'empty slot',to:String(sw.ilvl),cost:0,gain:sw.ilvl-now,ceiling:sw.ilvl});
+    totalGain+=sw.ilvl-now;
   });
 
   TRACK_NAMES.forEach(tn=>{
@@ -1083,7 +1110,7 @@ function plan(){
       const bits=[];
       if(eq) bits.push('<b>Equip</b> '+String(eq.item).replace(/</g,'&lt;')
         +' <span class="cost">'+(eq.gain>0?'+'+eq.gain+' now':eq.gain+' now, '+eq.ceiling+' ceiling')+'</span>');
-      if(up) bits.push('<b>'+(eq?'Then upgrade':'Upgrade')+'</b> to '+up.to
+      if(up&&up.track) bits.push('<b>'+(eq?'Then upgrade':'Upgrade')+'</b> to '+up.to
         +' <span class="cost">'+up.cost+' '+up.track+' &middot; +'+up.gain+'</span>');
       const holding=!!(eq&&eq.gain<0&&!up);
       el.className='rec'+(holding?' hold':'');
@@ -1133,7 +1160,7 @@ function plan(){
                  : '<span class="sub">0</span>';
       return '<tr'+(n===0?' class="best"':'')+'><td>'+verb+' '+String(r.item).replace(/</g,'&lt;')
         +'<span class="itemname">'+r.name+'</span></td>'
-        +'<td><span class="tag '+r.key+'">'+r.track+'</span></td>'
+        +'<td>'+(r.track?'<span class="tag '+r.key+'">'+r.track+'</span>':'<span class="sub">no track</span>')+'</td>'
         +'<td class="n">'+r.from+'</td><td class="n">'+r.to+'</td>'
         +'<td class="n">'+(r.cost?r.cost:'<span class="sub">free</span>')+'</td>'
         +'<td class="n">'+gtxt+'</td></tr>';
@@ -1239,27 +1266,32 @@ function applySimc(text){
     if(g.ilvl===null){ skipped++; return; }
     let guess=guessTrack(g.ilvl);
     if(g.mark && g.mark.confirmed) guess={track:g.mark.confirmed[0],rank:g.mark.confirmed[1],ambiguous:false};
-    if(!guess){ skipped++; return; }
+    /* No track match is not a reason to throw the item away. Keep it on the list with
+       its item level so it can still be compared against what is in your bags. */
+    const untracked=!guess;
+    if(untracked){ guess={track:'Adventurer',rank:0,ambiguous:false}; if(!g.crafted) skipped++; }
     const stale2 = g.mark ? g.mark.live===false : false;
     const unknown = g.mark ? g.mark.live===null : true;
     addPiece(guess.track,guess.rank,g.slot);
     pieces[pieces.length-1].item=g.name;
     pieces[pieces.length-1].ilvl=g.ilvl;
     pieces[pieces.length-1].crafted=!!g.crafted;
-    pieces[pieces.length-1].live=!!(g.mark&&g.mark.live===true);
+    pieces[pieces.length-1].live=!untracked&&!!(g.mark&&g.mark.live===true);
+    pieces[pieces.length-1].untracked=untracked;
     if(!pieces[pieces.length-1].live){
       pieces[pieces.length-1].track=null;
       const tsel=pieceList.querySelector('.prow[data-i="'+(pieces.length-1)+'"] [data-f=track]');
       if(tsel){ tsel.value=''; fillRankSel(tsel.closest('.prow')); }
     }
     pieces[pieces.length-1].stale=stale2;
-    pieces[pieces.length-1].use=!(g.crafted||stale2||unknown||(g.mark&&g.mark.beyond));
+    pieces[pieces.length-1].use=!(untracked||g.crafted||stale2||unknown||(g.mark&&g.mark.beyond));
     const row=pieceList.querySelector('.prow[data-i="'+(pieces.length-1)+'"]');
     if(row){
       row.title=g.name+' — item level '+g.ilvl+(g.crafted?' — crafted, not on a standard track':'');
-      if(stale2){ row.title+=' — Season 1 rank marker, track locked'; row.classList.add('stale'); stale++; }
+      if(untracked){ row.title+=' — no upgrade track, shown for item level comparison only'; row.classList.add('untracked'); }
+      else if(stale2){ row.title+=' — Season 1 rank marker, track locked'; row.classList.add('stale'); stale++; }
       if(g.crafted){ row.classList.add('crafted'); crafted++; }
-      else if(!stale2 && (unknown || guess.ambiguous)){ row.classList.add('review'); review++;
+      else if(!untracked && !stale2 && (unknown || guess.ambiguous)){ row.classList.add('review'); review++;
         row.title+=unknown?' — no upgrade-rank marker found, so left out until you confirm it'
                           :' — item level sits on two tracks, confirm the track'; }
       const cb=row.querySelector('[data-f=use]'); if(cb) cb.checked=pieces[pieces.length-1].use;
@@ -1299,7 +1331,7 @@ function applySimc(text){
   if(stale) bits.push('<b>'+stale+'</b> item'+(stale>1?'s':'')+' unticked (pink) — a prior-season upgrade track, locked since the patch.');
   if(crafted) bits.push('<b>'+crafted+'</b> crafted item'+(crafted>1?'s':'')+' unticked (blue) — crafted gear is not on the standard tracks.');
   if(review) bits.push('<b>'+review+'</b> row'+(review>1?'s':'')+' marked amber and left out — no upgrade track at all, so there is nothing to spend crests on.');
-  if(skipped) bits.push(skipped+' slot'+(skipped>1?'s':'')+' skipped (no Season 2 track matches that item level).');
+  if(skipped) bits.push(skipped+' slot'+(skipped>1?'s':'')+' with no upgrade track (grey) &mdash; still listed so bag upgrades can be compared against them.');
   bits.push('Only ticked rows are planned. The in-game tooltip is the truth &mdash; if it shows an Upgrade Level, tick the row.');
   msg.innerHTML=bits.join(' ');
 }
@@ -1445,6 +1477,7 @@ const PREP=[
   ['Finish the Midnight campaign on your main','The Coiled Isle story assumes it is done, and it gates the 12.1 chapter.','Unlocks 12.1','1–2 hrs'],
   ['Mythic 0 world tour','Champion 1/6 per dungeon, no keystone needed, and it all carries into week one.','292 per slot','2–3 hrs'],
   ['Learn Altar of Fangs at Heroic','Three bosses, new this patch, and it is in the M+ pool on the 18th. Free reps now.','Route knowledge','40 min'],
+  ['Claim your Delver\u2019s map and burn it in a Tier 8','One map per week. Run it at Tier 8 or higher and the bounty chest pays Hero 1/6 \u2014 the only Hero-track piece anyone can get before the 18th. Unclaimed maps do not stack.','305, Hero 1/6','25 min'],
   ['Bank sparks, do not spend them','Crafted pieces are worth more once you know which slots your luck skipped.','Week 1 fills','—'],
   ['Spend every Season 1 currency','None of it carries over. Dawncrests convert to nothing on the 18th.','Use it or lose it','20 min'],
   ['Pull alts to 90','Level cap did not move. An alt at 90 now is an alt earning crests on day one.','Alt income','varies'],
