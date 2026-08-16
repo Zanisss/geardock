@@ -143,6 +143,10 @@ td.mono{font-family:var(--mono);font-size:13px;white-space:nowrap;color:var(--ve
 .rec b{color:var(--venom);font-weight:600}
 .rec .cost{font-family:var(--mono);font-size:11.5px;color:var(--bone-dim)}
 .rec.hold b{color:var(--hero)}
+/* a slot with something to do stays lit; everything else keeps its grey */
+.prow.acts{background:rgba(168,216,74,.06);box-shadow:inset 3px 0 0 var(--venom)}
+.prow.acts .rowitem{opacity:1;color:var(--bone)}
+.prow.acts.hold{background:rgba(217,138,43,.06);box-shadow:inset 3px 0 0 var(--hero)}
 .plan-empty{padding:16px 14px;color:var(--bone-dim);font-size:14px}
 .gain{color:var(--venom);font-weight:600}
 .best{box-shadow:inset 3px 0 0 var(--venom)}
@@ -1072,7 +1076,7 @@ function plan(){
       const ri=row.querySelector('.rowitem'); if(!ri) return;
       let el=ri.querySelector('.rec');
       const list=by[pc.slot];
-      if(!list||!list.length){ if(el) el.remove(); return; }
+      if(!list||!list.length){ if(el) el.remove(); row.classList.remove('acts','hold'); return; }
       if(!el){ el=document.createElement('span'); el.className='rec'; ri.appendChild(el); }
       const eq=list.find(r=>r.kind==='equip');
       const up=list.find(r=>r.kind==='upgrade');
@@ -1081,8 +1085,11 @@ function plan(){
         +' <span class="cost">'+(eq.gain>0?'+'+eq.gain+' now':eq.gain+' now, '+eq.ceiling+' ceiling')+'</span>');
       if(up) bits.push('<b>'+(eq?'Then upgrade':'Upgrade')+'</b> to '+up.to
         +' <span class="cost">'+up.cost+' '+up.track+' &middot; +'+up.gain+'</span>');
-      el.className='rec'+(eq&&eq.gain<0&&!up?' hold':'');
+      const holding=!!(eq&&eq.gain<0&&!up);
+      el.className='rec'+(holding?' hold':'');
       el.innerHTML=bits.join('<br>');
+      row.classList.add('acts');
+      row.classList.toggle('hold',holding);
     });
   })();
 
