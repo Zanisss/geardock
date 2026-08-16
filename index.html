@@ -454,7 +454,7 @@ footer a{color:var(--bone-dim)}
 <tr><td>Coffer Key needed?</td><td><b>No</b> &mdash; keys are only for the Bountiful chest</td></tr>
 <tr><td>Pays</td><td><span class="tag hero">Hero 1/6</span> &middot; <span class="ilvl-n">305</span> from a bonus chest</td></tr>
 </tbody></table>
-<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>During prep week this is the only Hero-track gear in the game.</b> The bounty chest is its own system and works now, even though rotating Bountiful Delves and Coffer Key Shards stay offline until 18 Aug. Also called Delver's Bounty or a Delve Map.</div>
+<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>During prep week this is the only Hero-track gear in the game.</b> Get it from <b>Purging the Vaults</b>, the weekly quest on the Coiled Isle. Once the season opens, Azta'rec &mdash; the Season 2 Delve nemesis &mdash; carries the best drop chance, and the Heavy Trunk at the end of a Bountiful Delve can also pay one. Capped at one per character per week across all sources: if Purging the Vaults does not offer the map, you have already looted it. The bounty chest works now even though rotating Bountiful Delves and Coffer Key Shards stay offline until 18 Aug. Also called Delver's Bounty, Trove Hunter's Bounty or a Delve Map.</div>
 </div>
 </div>
 </div>
@@ -1149,7 +1149,7 @@ function plan(){
     +(freeGain?' &middot; <span class="sub">'+freeGain+' of it free</span>':'')
     +' for '+totalSpent+' crests';
 
-  out.innerHTML='<table class="tight"><thead><tr><th>Do this</th><th>Track</th><th>From</th><th>To</th>'
+  out.innerHTML='<table class="tight"><thead><tr><th>Do this</th><th>Track</th><th>Lands at</th>'
     +'<th>Crests</th><th>Item level</th></tr></thead><tbody>'
     +rows.map((r,n)=>{
       const verb = r.kind==='equip'
@@ -1161,7 +1161,7 @@ function plan(){
       return '<tr'+(n===0?' class="best"':'')+'><td>'+verb+' '+String(r.item).replace(/</g,'&lt;')
         +'<span class="itemname">'+r.name+'</span></td>'
         +'<td>'+(r.track?'<span class="tag '+r.key+'">'+r.track+'</span>':'<span class="sub">no track</span>')+'</td>'
-        +'<td class="n">'+r.from+'</td><td class="n">'+r.to+'</td>'
+        +'<td class="n">'+r.to+'</td>'
         +'<td class="n">'+(r.cost?r.cost:'<span class="sub">free</span>')+'</td>'
         +'<td class="n">'+gtxt+'</td></tr>';
     }).join('')
@@ -1477,7 +1477,7 @@ const PREP=[
   ['Finish the Midnight campaign on your main','The Coiled Isle story assumes it is done, and it gates the 12.1 chapter.','Unlocks 12.1','1–2 hrs'],
   ['Mythic 0 world tour','Champion 1/6 per dungeon, no keystone needed, and it all carries into week one.','292 per slot','2–3 hrs'],
   ['Learn Altar of Fangs at Heroic','Three bosses, new this patch, and it is in the M+ pool on the 18th. Free reps now.','Route knowledge','40 min'],
-  ['Claim your Delver\u2019s map and burn it in a Tier 8','One map per week. Run it at Tier 8 or higher and the bounty chest pays Hero 1/6 \u2014 the only Hero-track piece anyone can get before the 18th. Unclaimed maps do not stack.','305, Hero 1/6','25 min'],
+  ['Purging the Vaults, then burn the map in a Tier 8','The weekly quest on the Coiled Isle hands you a Trovehunter\u2019s Bounty. Use it, clear a Tier 8 or higher Delve, and the chest is a guaranteed Hero 1/6 \u2014 the only Hero-track piece anyone can get before the 18th. One map per character per week; if the quest does not offer it, you already looted one.','305, Hero 1/6','25 min'],
   ['Bank sparks, do not spend them','Crafted pieces are worth more once you know which slots your luck skipped.','Week 1 fills','—'],
   ['Spend every Season 1 currency','None of it carries over. Dawncrests convert to nothing on the 18th.','Use it or lose it','20 min'],
   ['Pull alts to 90','Level cap did not move. An alt at 90 now is an alt earning crests on day one.','Alt income','varies'],
