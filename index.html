@@ -139,6 +139,10 @@ td.mono{font-family:var(--mono);font-size:13px;white-space:nowrap;color:var(--ve
 .bagtbl td:nth-child(n+4){white-space:nowrap}
 .nowbtr{font-family:var(--mono);font-size:10.5px;color:var(--venom);border:1px solid rgba(168,216,74,.45);border-radius:2px;padding:1px 5px;margin-left:4px}
 .itemname{display:block;font-size:13px;color:var(--bone-dim);margin-top:2px}
+.rec{display:block;font-size:12.5px;margin-top:3px;line-height:1.35}
+.rec b{color:var(--venom);font-weight:600}
+.rec .cost{font-family:var(--mono);font-size:11.5px;color:var(--bone-dim)}
+.rec.hold b{color:var(--hero)}
 .plan-empty{padding:16px 14px;color:var(--bone-dim);font-size:14px}
 .gain{color:var(--venom);font-weight:600}
 .best{box-shadow:inset 3px 0 0 var(--venom)}
@@ -657,7 +661,7 @@ footer a{color:var(--bone-dim)}
 <div class="panel-head">Your gear<span class="q"><span id="pieceCount"></span> <button id="addPiece" class="minibtn">+ Add slot</button></span></div>
 <div class="prow phead"><span></span><span>Slot</span><span>Equipped</span><span>Track</span><span>Rank</span><span></span></div>
 <div id="pieceList"></div>
-<div class="panel-foot">Tick a row to include it in the plan. Rows are unticked automatically when the item has no live upgrade track.</div>
+<div class="panel-foot">Tick a row to include it in the plan. Rows are unticked automatically when the item has no live upgrade track. <b>Green lines under a slot are what to do with it</b> &mdash; the same advice the plan below puts in priority order.</div>
 </div>
 
 <div class="calc-right">
@@ -964,7 +968,7 @@ function plan(){
   pieces.forEach(p=>{
     if(p.use===false||!p.live||!p.track||!TRACKS[p.track]) return;
     const g=SLOT_GROUP(p.slot);
-    offer(g,{slot:g,item:p.item||g,track:p.track,rank:p.rank,
+    offer(g,{slot:g,src:p.slot,item:p.item||g,track:p.track,rank:p.rank,
       ilvl:TRACKS[p.track].ilvls[p.rank],cap:TRACKS[p.track].ilvls[5],bag:false});
   });
   (BAGS||[]).forEach(b=>{
@@ -994,13 +998,20 @@ function plan(){
     chosen.filter(c=>!c.bag).forEach(c=>{
       const i=bench.indexOf(c.ilvl); if(i>-1) bench.splice(i,1);
     });
+    /* pin every pick to a real slot so the advice can be shown on that row */
+    const members=SLOTS.filter(sl=>SLOT_GROUP(sl)===g);
+    const held=chosen.filter(c=>!c.bag).map(c=>c.src);
+    const openSlots=members.filter(sl=>held.indexOf(sl)<0);
+    chosen.forEach(c=>{ c.dest=c.bag?(openSlots.shift()||members[0]):c.src; });
     chosen.forEach(c=>{
-      cand.push(c);
-      if(!c.bag) return;
+      if(!c.bag){ cand.push(c); return; }
       const now=bench.length?bench.shift():0;
-      if(c.ilvl<=now&&c.cap<=now) return;
+      /* a bag piece whose ceiling cannot beat what you already wear is not worth
+         equipping or funding, even when it is the only live-track option here */
+      if(c.cap<=now) return;
+      cand.push(c);
       const d=c.ilvl-now;
-      rows.push({kind:'equip',track:c.track,key:TRACKS[c.track].key,name:c.slot,item:c.item,
+      rows.push({kind:'equip',track:c.track,key:TRACKS[c.track].key,name:c.slot,dest:c.dest,item:c.item,
         from:now?('wearing '+now):'empty slot',to:(c.rank+1)+'/6 &middot; '+c.ilvl,
         cost:0,gain:d,ceiling:c.cap});
       if(d>0) totalGain+=d;
@@ -1026,7 +1037,7 @@ function plan(){
       const res=bestSpend(items,capSteps);
       res.steps.forEach(([idx,k])=>{
         const c=mine[idx], from=c.rank, to=from+k;
-        rows.push({kind:'upgrade',track:tn,key:t.key,name:c.slot,item:c.item,bag:c.bag,
+        rows.push({kind:'upgrade',track:tn,key:t.key,name:c.slot,dest:c.dest,item:c.item,bag:c.bag,
           from:(from+1)+'/6 &middot; '+t.ilvls[from],to:(to+1)+'/6 &middot; '+t.ilvls[to],
           cost:k*per,gain:t.ilvls[to]-t.ilvls[from],ceiling:c.cap});
       });
@@ -1051,6 +1062,29 @@ function plan(){
       +'<span class="amt">'+l.left+'</span></div>').join('')
       +'<div class="panel-foot">Unspent crests carry over, but the weekly cap does not.</div>';
   }
+
+  /* advice on the gear rows themselves, keyed to the slot it applies to */
+  (function paintRows(){
+    const by={};
+    rows.forEach(r=>{ if(r.dest) (by[r.dest]=by[r.dest]||[]).push(r); });
+    pieceList.querySelectorAll('.prow').forEach(row=>{
+      const i=+row.dataset.i, pc=pieces[i]; if(!pc) return;
+      const ri=row.querySelector('.rowitem'); if(!ri) return;
+      let el=ri.querySelector('.rec');
+      const list=by[pc.slot];
+      if(!list||!list.length){ if(el) el.remove(); return; }
+      if(!el){ el=document.createElement('span'); el.className='rec'; ri.appendChild(el); }
+      const eq=list.find(r=>r.kind==='equip');
+      const up=list.find(r=>r.kind==='upgrade');
+      const bits=[];
+      if(eq) bits.push('<b>Equip</b> '+String(eq.item).replace(/</g,'&lt;')
+        +' <span class="cost">'+(eq.gain>0?'+'+eq.gain+' now':eq.gain+' now, '+eq.ceiling+' ceiling')+'</span>');
+      if(up) bits.push('<b>'+(eq?'Then upgrade':'Upgrade')+'</b> to '+up.to
+        +' <span class="cost">'+up.cost+' '+up.track+' &middot; +'+up.gain+'</span>');
+      el.className='rec'+(eq&&eq.gain<0&&!up?' hold':'');
+      el.innerHTML=bits.join('<br>');
+    });
+  })();
 
   /* the plan: free swaps first, then crest spends by item level per crest */
   rows.sort((a,b)=>{
