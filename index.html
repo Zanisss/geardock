@@ -240,17 +240,6 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid 
 .saveline{font-size:12.5px;color:var(--bone-dim);margin-top:16px}
 .saveline.warn{color:var(--hero)}
 
-/* countdown */
-.clock{margin-top:28px;border:1px solid var(--rule);border-left:3px solid var(--venom);background:linear-gradient(180deg,var(--abyss-2),rgba(17,25,34,0));padding:22px 26px}
-.clock.live{border-left-color:var(--myth)}
-.clock-label{font-family:var(--mono);font-size:13.2px;letter-spacing:.18em;text-transform:uppercase;color:var(--venom);margin:0}
-.clock.live .clock-label{color:var(--myth)}
-.clock-digits{display:flex;gap:26px;margin:14px 0 0;flex-wrap:wrap}
-.unit{display:flex;flex-direction:column}
-.unit b{font-family:var(--mono);font-size:clamp(30px,5vw,46px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
-.unit i{font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim);margin-top:8px}
-.clock-note{font-size:15px;color:var(--bone-dim);margin:16px 0 0;max-width:76ch}
-
 .verify{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--hero);border:1px solid rgba(217,138,43,.4);padding:1px 7.2px;border-radius:2px;vertical-align:middle;margin-left:6px}
 
 footer{padding:48px 0 84px;font-size:15px;color:var(--bone-dim)}
@@ -269,12 +258,6 @@ footer a{color:var(--bone-dim)}
 <h1>GearDock<span>Midnight Season 2 gearing reference</span></h1>
 <p class="lede" style="margin-bottom:0">Every item level, every source, one page. Built for guild members who want to know what to run tonight and what to spend crests on tomorrow.</p>
 <p class="meta">Season 2 <b>live</b> &middot; Season floor <b>266</b> &middot; Ceiling <b>344</b> &middot; Last checked <b>18 Aug 2026</b></p>
-
-<div class="clock" id="clock">
-<p class="clock-label" id="clockLabel">Season 2 &middot; reset in</p>
-<div class="clock-digits" id="clockDigits"></div>
-<p class="clock-note" id="clockNote"></p>
-</div>
 </div>
 </div>
 </header>
@@ -1539,38 +1522,6 @@ function buildCheck(cfg){
 }
 
 buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',countId:'weekCount',saveId:'weekSave',clearId:'weekClear'});
-
-/* ---- countdown ---- */
-(function(){
-  const clock=document.getElementById('clock');
-  const label=document.getElementById('clockLabel');
-  const digits=document.getElementById('clockDigits');
-  const note=document.getElementById('clockNote');
-  const pad=v=>(v<10?'0':'')+v;
-  const unit=(v,l)=>'<div class="unit"><b>'+pad(v)+'</b><i>'+l+'</i></div>';
-
-  function tick(){
-    const left=SEASON_START-Date.now();
-    if(left>0){
-      const s=Math.floor(left/1000);
-      label.textContent='Season 2 opens in';
-      digits.innerHTML=unit(Math.floor(s/86400),'days')+unit(Math.floor(s%86400/3600),'hrs')
-        +unit(Math.floor(s%3600/60),'min')+unit(s%60,'sec');
-      note.textContent='Tuesday 18 August, 8am PT / 10am CT.';
-      clock.classList.remove('live');
-      return;
-    }
-    const into=Math.abs(left);
-    const week=Math.floor(into/604800000)+1;
-    const r=Math.floor((604800000-into%604800000)/1000);
-    label.textContent='Season 2 · week '+week+' · reset in';
-    digits.innerHTML=unit(Math.floor(r/86400),'days')+unit(Math.floor(r%86400/3600),'hrs')+unit(Math.floor(r%3600/60),'min');
-    note.textContent='Vault progress and crest caps roll over at reset. The crests themselves carry; the unused portion of the weekly cap does not.';
-    clock.classList.add('live');
-  }
-  tick();
-  setInterval(tick,1000);
-})();
 </script>
 </body>
 </html>
