@@ -83,9 +83,9 @@ h3{font-family:var(--display);font-size:20.4px;text-transform:uppercase;letter-s
 .lootgrp .g{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-dim);padding-top:3px}
 .items{display:flex;flex-wrap:wrap;gap:5px}
 .item{display:inline-block;font-size:13.5px;padding:2px 8px;border-radius:2px;background:var(--abyss-3);color:var(--bone);text-decoration:none;border:1px solid transparent}
-.item:hover,.item:focus-visible{border-color:var(--venom);color:var(--venom)}
+a.item:hover,a.item:focus-visible{border-color:var(--venom);color:var(--venom)}
 .item .st{font-family:var(--mono);font-size:11px;color:var(--bone-dim);margin-left:7px;letter-spacing:.04em}
-.item:hover .st,.item:focus-visible .st{color:var(--venom);opacity:.75}
+a.item:hover .st,a.item:focus-visible .st{color:var(--venom);opacity:.75}
 .item.vr{box-shadow:inset 0 0 0 1px rgba(212,85,122,.5)}
 .item.tok{background:rgba(217,138,43,.13)}
 .crestbox{display:grid;grid-template-columns:1fr 1fr;gap:0}
@@ -250,7 +250,6 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid 
 .unit b{font-family:var(--mono);font-size:clamp(30px,5vw,46px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
 .unit i{font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim);margin-top:8px}
 .clock-note{font-size:15px;color:var(--bone-dim);margin:16px 0 0;max-width:76ch}
-.prep-done{display:none}
 
 .verify{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--hero);border:1px solid rgba(217,138,43,.4);padding:1px 7.2px;border-radius:2px;vertical-align:middle;margin-left:6px}
 
@@ -269,10 +268,10 @@ footer a{color:var(--bone-dim)}
 <p class="eyebrow">Patch 12.1 &middot; The Curse of Ula'tek</p>
 <h1>GearDock<span>Midnight Season 2 gearing reference</span></h1>
 <p class="lede" style="margin-bottom:0">Every item level, every source, one page. Built for guild members who want to know what to run tonight and what to spend crests on tomorrow.</p>
-<p class="meta">Season 2 opens <b>18 Aug 2026</b> &middot; Season floor <b>266</b> &middot; Ceiling <b>344</b> &middot; Last checked <b>13 Aug 2026</b></p>
+<p class="meta">Season 2 <b>live</b> &middot; Season floor <b>266</b> &middot; Ceiling <b>344</b> &middot; Last checked <b>18 Aug 2026</b></p>
 
 <div class="clock" id="clock">
-<p class="clock-label" id="clockLabel">Season 2 opens in</p>
+<p class="clock-label" id="clockLabel">Season 2 &middot; reset in</p>
 <div class="clock-digits" id="clockDigits"></div>
 <p class="clock-note" id="clockNote"></p>
 </div>
@@ -283,7 +282,7 @@ footer a{color:var(--bone-dim)}
 <nav>
 <div class="wrap">
 <ul>
-<li id="navPrep"><a href="#prep"><span class="nn">00</span>Prep week</a></li>
+<li><a href="#week"><span class="nn">00</span>Weekly</a></li>
 <li><a href="#ladder"><span class="nn">01</span>Ladder</a></li>
 <li><a href="#drops"><span class="nn">02</span>Dungeons</a></li>
 <li><a href="#loot"><span class="nn">03</span>Raid loot</a></li>
@@ -291,19 +290,18 @@ footer a{color:var(--bone-dim)}
 <li><a href="#crests"><span class="nn">05</span>Mistcrests</a></li>
 <li><a href="#calc"><span class="nn">06</span>Planner</a></li>
 <li><a href="#tier"><span class="nn">07</span>Catalyst</a></li>
-<li><a href="#week"><span class="nn">08</span>Weekly</a></li>
 </ul>
 </div>
 </nav>
 
-<section id="prep">
+<section id="week">
 <div class="wrap">
-<h2><span class="num">00</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>Prep week</h2>
-<p class="lede">Patch 12.1 went live 11 Aug; Season 2 opens 18 Aug. The raid, ranked keys, Bountiful Delves and Coffer Key Shards are shut until then &mdash; but Mythic 0 and Heroic are open on the full Season 2 pool, and <b>that gear carries into week one.</b> <b>The Vault is already running:</b> this week's credit builds the first Season 2 vault, which you open on the 18th, but every reward in it is capped at 298 for now. Mythic 0 is on a <em>weekly</em> lockout during prep and flips to daily at season start. This list disappears when the season starts.</p>
+<h2><span class="num">00</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>The weekly routine</h2>
+<p class="lede">In priority order by reward, not by time. The full list is a long week &mdash; eight keys at +10 is an evening on its own. <b>If you only have an hour:</b> Azta'rec, your Trovehunter's Bounty, and spending crests before reset. Those three return the most per minute of anything on this page.</p>
 
-<div class="checkbar"><span id="prepCount"></span><button class="minibtn2" id="prepClear">Clear ticks</button></div>
-<ul class="check" id="prepcheck"></ul>
-<p class="saveline" id="prepSave"></p>
+<div class="checkbar"><span id="weekCount"></span><button class="minibtn2" id="weekClear">Clear ticks</button></div>
+<ul class="check" id="checklist"></ul>
+<p class="saveline" id="weekSave"></p>
 </div>
 </section>
 
@@ -392,9 +390,14 @@ footer a{color:var(--bone-dim)}
 
 <div class="panel" style="margin-bottom:24px">
 <div class="panel-head">Season 2 Mythic+ pool<span class="q">8 dungeons</span></div>
-<div class="lootgrp"><div class="g">Midnight</div><div class="items"><span class="item">Altar of Fangs</span><span class="item">Murder Row</span><span class="item">Den of Nalorakk</span><span class="item">The Blinding Vale</span><span class="item">Voidscar Arena</span></div></div>
-<div class="lootgrp"><div class="g">Returning</div><div class="items"><span class="item">King's Rest</span><span class="item">Temple of Sethraliss</span><span class="item">Ruby Life Pools</span></div></div>
-<div class="panel-foot">Season 1's entire pool retires &mdash; nothing carries over. All eight are on Heroic and Mythic 0 during prep week, so learn them before the timer starts on 18 Aug. Altar of Fangs is the only brand-new one: three bosses, ending on Zul'jan.</div>
+<!-- Raider.IO Weekly Route links. Per-dungeon anchors are NOT yet confirmed: the
+     weekly-routes page is JavaScript-rendered, so the fragment ids could not be read
+     from outside a browser. Each link points at the base page and works today. To deep
+     link later, open raider.io/weekly-routes, click a dungeon tab, copy the #fragment
+     from the address bar and append it to that one href. -->
+<div class="lootgrp"><div class="g">Midnight</div><div class="items"><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Altar of Fangs</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Murder Row</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Den of Nalorakk</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">The Blinding Vale</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Voidscar Arena</a></div></div>
+<div class="lootgrp"><div class="g">Returning</div><div class="items"><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">King's Rest</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Temple of Sethraliss</a><a class="item" href="https://raider.io/weekly-routes" target="_blank" rel="noopener" title="Raider.IO Weekly Route">Ruby Life Pools</a></div></div>
+<div class="panel-foot">Season 1's entire pool retires &mdash; nothing carries over. <b>Keys are live as of today</b>, and Mythic 0 has flipped from a weekly lockout to a daily one. Altar of Fangs is the only brand-new one: three bosses, ending on Zul'jan. Dungeon names link to Raider.IO's Weekly Route.</div>
 </div>
 
 <div class="grid2 rows">
@@ -454,7 +457,7 @@ footer a{color:var(--bone-dim)}
 <tr><td>Coffer Key needed?</td><td><b>No</b> &mdash; keys are only for the Bountiful chest</td></tr>
 <tr><td>Pays</td><td><span class="tag hero">Hero 1/6</span> &middot; <span class="ilvl-n">305</span> from a bonus chest</td></tr>
 </tbody></table>
-<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. <b>During prep week this is the only Hero-track gear in the game.</b> Get it from <b>Purging the Vaults</b>, the weekly quest on the Coiled Isle. Once the season opens, Azta'rec &mdash; the Season 2 Delve nemesis &mdash; carries the best drop chance, and the Heavy Trunk at the end of a Bountiful Delve can also pay one. Capped at one per character per week across all sources: if Purging the Vaults does not offer the map, you have already looted it. The bounty chest works now even though rotating Bountiful Delves and Coffer Key Shards stay offline until 18 Aug. Also called Delver's Bounty, Trove Hunter's Bounty or a Delve Map.</div>
+<div class="panel-foot"><b>Do not click it early.</b> The map triggers on your <em>next completed delve</em>, so unlock Tier 8 first and have a Tier 8+ run lined up &mdash; tiers unlock per Warband, and using it at Tier 3 wastes the whole week. Now that the season is open, <b>Azta'rec</b> &mdash; the Season 2 nemesis, down in Venomfall Deeps &mdash; carries the best drop chance, and the Heavy Trunk at the end of a Bountiful Delve can also pay one. <b>Purging the Vaults</b>, the weekly quest on the Coiled Isle, still hands one out. Capped at one per character per week across all sources: if Purging the Vaults does not offer the map, you have already looted it. Also called Delver's Bounty, Trove Hunter's Bounty or a Delve Map.</div>
 </div>
 </div>
 </div>
@@ -509,7 +512,7 @@ footer a{color:var(--bone-dim)}
 </div>
 
 <div class="callout warn" style="margin-top:26px">
-<b>Loot lists from Wowhead’s rewards guide, updated 10 Aug; item levels reconciled against Fisher’s reference.</b> The raid does not open until 18 Aug, so tuning and spec eligibility can still shift. Confirm the in-game Dungeon Journal before spending a Voidcore.
+<b>Loot lists from Wowhead’s rewards guide, updated 10 Aug; item levels reconciled against Fisher’s reference.</b> The raid opened today &mdash; tuning and spec eligibility still move in the first weeks of a season. Confirm the in-game Dungeon Journal before spending a Voidcore.
 </div>
 </div>
 </section>
@@ -552,7 +555,7 @@ footer a{color:var(--bone-dim)}
 
 <div class="card">
 <h4>World row</h4>
-<p style="margin-bottom:12px">Activity tier drives quality. Caps below Myth.</p>
+<p style="margin-bottom:12px">2 / 4 / 8 activities unlock the three slots. Caps below Myth.</p>
 <table style="font-size:13px">
 <tbody>
 <tr><td>Tier 1</td><td><span class="tag vet">Veteran 1/6</span></td><td class="n">279</td></tr>
@@ -562,10 +565,10 @@ footer a{color:var(--bone-dim)}
 <tr><td>Tier 5</td><td><span class="tag champ">Champion 1/6</span></td><td class="n">292</td></tr>
 <tr><td>Tier 6</td><td><span class="tag champ">Champion 2/6</span></td><td class="n">295</td></tr>
 <tr><td>Tier 7</td><td><span class="tag champ">Champion 3/6</span></td><td class="n">298</td></tr>
-<tr><td>Tier 8–11</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">305<span class="verify">verify</span></td></tr>
+<tr><td>Tier 8–11</td><td><span class="tag hero">Hero 1/6</span></td><td class="n">305</td></tr>
 </tbody>
 </table>
-<p style="margin-top:12px;font-size:12px;color:var(--bone-dim)"><b>Not Delves only.</b> Every world activity maps onto one shared tier ladder: Delves T1&ndash;11, Ritual Sites T1&ndash;6, Prey at T1/5/8 by difficulty, world events at T1. Tiers 1&ndash;7 are confirmed by a live client and by Gandalin's Ritual Site and Prey tables. Only the Tier 8 step is unconfirmed &mdash; Method and Fisher both say Hero 1/6, but nothing has been seen in game above 298.</p>
+<p style="margin-top:12px;font-size:12px;color:var(--bone-dim)"><b>Not Delves only.</b> Every world activity maps onto one shared tier ladder: Delves T1&ndash;11, Ritual Sites T1&ndash;6, Prey at T1/5/8 by difficulty, world events at T1. <b>Each slot takes the tier of the activity that filled it</b>, so a single Tier 8 clear does not lift the other two &mdash; it takes eight Tier 8+ activities to make all three choices 305. Tier 8 is the ceiling: Tiers 9&ndash;11 are harder without paying more here.</p>
 </div>
 </div>
 
@@ -635,10 +638,10 @@ footer a{color:var(--bone-dim)}
 <tr><td><span class="tag vet">Veteran</span></td><td>Outdoor events, LFR, Heroic dungeons, Delve T4&ndash;5</td></tr>
 <tr><td><span class="tag champ">Champion</span></td><td>Weekly outdoor events, Normal raid, Mythic 0, keys &plus;2&ndash;&plus;3, Delve T6&ndash;7</td></tr>
 <tr><td><span class="tag hero">Hero</span></td><td>Heroic raid, keys &plus;4&ndash;&plus;8, Delve T8&ndash;11</td></tr>
-<tr><td><span class="tag myth">Myth</span></td><td>Mythic raid, keys &plus;9 and above</td></tr>
+<tr><td><span class="tag myth">Myth</span></td><td>Mythic raid, keys &plus;9 and above, Tier 11 Gilded Stash</td></tr>
 </tbody>
 </table>
-<div class="panel-foot">Each crest type has its own weekly cap. Once you hit it, further rewards pay the same quantity one tier down instead of nothing.<span class="verify">cap value unverified</span></div>
+<div class="panel-foot">Each crest type has its own weekly cap: <b>100 per type, per character</b>, climbing by another 100 each week on a catch-up curve &mdash; so it bites hard in week one and stops mattering by mid-season. Once you hit a cap, further rewards pay the same quantity one tier down instead of nothing. <b>Two sources ignore the cap entirely:</b> Azta'rec on the lower Nemesis difficulty pays 30 Hero Mistcrests, and Tier 11 Gilded Stashes pay 7 Myth each, three times a week, once Delver's Journey hits Rank 4.</div>
 </div>
 
 </div>
@@ -715,7 +718,7 @@ footer a{color:var(--bone-dim)}
 <tr><td>Charge currency</td><td>Crystallized Venomblight Manaflux</td></tr>
 <tr><td>Convertible slots</td><td>Head, Shoulder, Chest, Hands, Legs</td></tr>
 <tr><td>Minimum gear</td><td>Veteran track or higher, PvE only</td></tr>
-<tr><td>First charge</td><td>At season start &mdash; 18 Aug</td></tr>
+<tr><td>First charge</td><td>Available now</td></tr>
 <tr><td>Then</td><td>One more every two weeks</td></tr>
 <tr><td>Bonus charge</td><td>Once per season, from <em>Midnight Season 2: Serpent Scion</em></td></tr>
 </tbody></table>
@@ -764,26 +767,16 @@ footer a{color:var(--bone-dim)}
 </div>
 
 <div class="callout warn" style="margin-top:26px">
-<b>One number still unconfirmed:</b> the weekly Mistcrest cap, widely reported as 100 per type per character but not from a source I trust. The Venomstone 8/6 band is 341, confirmed against Fisher's reference. Everything else here is from Icy Veins and Warcraft Wiki, checked 13 Aug.
+<b>The Mistcrest cap is settled:</b> 100 per type, per character, per week, rising by another 100 each week on a catch-up curve. Icy Veins, Method and Boostmatch all agree, and it squares with the flat 20-per-rank cost &mdash; five ranks a week at launch. The Venomstone 8/6 band is 341, confirmed against Fisher's reference. Everything else here checked 18 Aug.
 </div>
 </div>
 </section>
 
-<section id="week">
-<div class="wrap">
-<h2><span class="num">08</span><a class="totop" href="#top" aria-label="Back to top">Top &uarr;</a>The weekly routine</h2>
-<p class="lede">In priority order by reward, not by time. The full list is a long week &mdash; eight keys at +10 is an evening on its own. <b>If you have an hour, do the last four:</b> the weekly quest, a Prey hunt, your Bountiful Delves and spending crests return the most per minute.</p>
-
-<div class="checkbar"><span id="weekCount"></span><button class="minibtn2" id="weekClear">Clear ticks</button></div>
-<ul class="check" id="checklist"></ul>
-<p class="saveline" id="weekSave"></p>
-</div>
-</section>
 
 <footer>
 <div class="wrap">
-<p><b>GearDock v1.2 beta</b> — updated 15 Aug 2026 for patch 12.1, Midnight Season 2. Item level and crest data now follow <b>Fisher's Gearing Reference</b> (Discord: _fisherr), cross-checked against Method's Season 2 guides and Icy Veins. <b>Fisher's sheet is PTR data compiled 24 Jul, before 12.1 shipped</b> — treat every number as directional until it is confirmed in game. Flags marked <span class="verify">verify</span> are open questions; <span class="verify">client conflict</span> marks a spot where a live client disagreed with the sheet. Beta build — tell Troy what looks wrong.</p>
-<p>Season 2 begins 18 Aug 2026. Blizzard tunes reward tracks in the first weeks of a season — if something here disagrees with the game, the game is right.</p>
+<p><b>GearDock v1.3</b> — updated 18 Aug 2026, season launch day. Prep week is retired and the weekly routine is now section 00. Item level and crest data follow <b>Fisher's Gearing Reference</b> (Discord: _fisherr), cross-checked against Method's Season 2 guides and Icy Veins. Fisher's sheet was PTR data compiled 24 Jul — most of it has now held up against live numbers, but anything still flagged <span class="verify">verify</span> is an open question. Tell Troy what looks wrong.</p>
+<p>Season 2 opened 18 Aug 2026. Blizzard tunes reward tracks in the first weeks of a season — if something here disagrees with the game, the game is right.</p>
 </div>
 </footer>
 
@@ -1462,27 +1455,28 @@ const resetPeriod=now=>Math.floor((now-SEASON_START)/604800000);
 
 /* ---- checklists ---- */
 const TASKS=[
-  ['Eight Mythic+ keys at +10 or higher','Fills all three dungeon vault slots at Myth 1/6 and caps Myth Mistcrests fast.','3 vault slots','4–6 hrs'],
-  ['Six raid bosses at the highest difficulty you clear','Fills all three raid slots. Heroic pays out Myth 1/6 this season.','3 vault slots','2–3 hrs'],
+  ['Eight Mythic+ keys at +10 or higher','Fills all three dungeon vault slots at Myth 1/6 and caps Myth Mistcrests fast. Above +12 the rewards stop improving \u2014 that is score only.','3 vault slots','4\u20136 hrs'],
+  ['Six raid bosses at the highest difficulty you clear','Fills all three raid slots. Heroic pays out Myth 1/6 this season.','3 vault slots','2\u20133 hrs'],
   ['Kill Ula\'tek on your best difficulty','Drops a bonus 10 crests of the tier above, on top of the normal payout.','+10 crests','with the raid'],
-  ['Four Bountiful Delves with Restored Coffer Keys','Cheapest Champion and Hero track pieces in the game. Six keys available per week.','Up to Hero 1/6','45–60 min'],
-  ['Trovehunter\'s Bounty in a Tier 8+ Delve','One guaranteed Hero 1/6 per character. Do not click the map before Tier 8 is unlocked.','Hero 1/6 · 305','15 min'],
-  ['One Nightmare Prey hunt','Fastest way to fill the world vault row at Hero 1/6.','1 vault slot','10 min'],
-  ['Spend crests before reset','Unspent crests carry over but the weekly cap does not. Upgrade your longest-term pieces first.','—','5 min'],
+  ['Azta\'rec on the lower Nemesis difficulty','Venomfall Deeps. Pays 30 Hero Mistcrests that do not count against your weekly cap, and carries the best Trovehunter\'s Bounty drop chance in the game.','30 uncapped Hero','15 min'],
+  ['Eight Tier 8+ world activities','The world row unlocks at 2, 4 and 8 \u2014 and each slot takes the tier of whatever filled it. One Tier 8 clear does not lift the other two.','3 slots at 305','60\u201390 min'],
+  ['Trovehunter\'s Bounty in a Tier 8+ Delve','One guaranteed Hero 1/6 per character. Do not click the map before Tier 8 is unlocked.','Hero 1/6 \u00b7 305','15 min'],
+  ['Four Bountiful Delves with Restored Coffer Keys','Cheapest Champion gear in the game. Six keys available per week; the coffer itself caps at 295.','Champion 2/6','45\u201360 min'],
+  ['Three Tier 11 Bountiful Delves with lives remaining','Each Gilded Stash pays 7 Myth Mistcrests, outside the weekly cap. Needs Delver\'s Journey Rank 4 first.','21 uncapped Myth','45 min'],
+  ['Spend crests before reset','Unspent crests carry over but the weekly cap does not. Upgrade your longest-term pieces first.','\u2014','5 min'],
   ['Check Catalyst charges','Convert toward 2-set and 4-set. Secondaries are preserved this season.','Tier progress','5 min'],
-  ['Bank Venomstones for weapon and trinkets','Do not spend these on armor. Armor gets replaced; weapons do not.','341 band','—']
+  ['Bank Venomstones for weapon and trinkets','Do not spend these on armor. Armor gets replaced; weapons do not.','341 band','\u2014']
 ];
 
-const PREP=[
-  ['Finish the Midnight campaign on your main','The Coiled Isle story assumes it is done, and it gates the 12.1 chapter.','Unlocks 12.1','1–2 hrs'],
-  ['Mythic 0 world tour','Champion 1/6 per dungeon, no keystone needed, and it all carries into week one.','292 per slot','2–3 hrs'],
-  ['Learn Altar of Fangs at Heroic','Three bosses, new this patch, and it is in the M+ pool on the 18th. Free reps now.','Route knowledge','40 min'],
-  ['Purging the Vaults, then burn the map in a Tier 8','The weekly quest on the Coiled Isle hands you a Trovehunter\u2019s Bounty. Use it, clear a Tier 8 or higher Delve, and the chest is a guaranteed Hero 1/6 \u2014 the only Hero-track piece anyone can get before the 18th. One map per character per week; if the quest does not offer it, you already looted one.','305, Hero 1/6','25 min'],
-  ['Bank sparks, do not spend them','Crafted pieces are worth more once you know which slots your luck skipped.','Week 1 fills','—'],
-  ['Spend every Season 1 currency','None of it carries over. Dawncrests convert to nothing on the 18th.','Use it or lose it','20 min'],
-  ['Pull alts to 90','Level cap did not move. An alt at 90 now is an alt earning crests on day one.','Alt income','varies'],
-  ['Skip Season 1 gear upgrades','Everything shifts ~46 item levels. A Myth 6/6 piece today is Veteran-tier next week.','Do not bother','—']
-];
+
+/* Ticks are stored against a slug of the task title, not its position in the array.
+   Reordering or inserting a task then leaves every other tick where it belongs.
+   Anything that does not match a current slug \u2014 an old numeric index, or a task
+   that has since been reworded \u2014 is simply ignored and drops out on next save. */
+const taskSlug=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);
+
+/* prep week is retired; clear anything it left behind */
+Store.del('geardock:prep'); Store.del('geardock:prep:period');
 
 function buildCheck(cfg){
   const ul=document.getElementById(cfg.listId);
@@ -1502,8 +1496,9 @@ function buildCheck(cfg){
   cfg.tasks.forEach((t,i)=>{
     const li=document.createElement('li');
     const id=cfg.key.replace(/[^a-z]/g,'')+i;
+    const key=taskSlug(t[0]);
     const box=document.createElement('input');
-    box.type='checkbox'; box.id=id; box.dataset.i=i; box.checked=!!saved[i];
+    box.type='checkbox'; box.id=id; box.dataset.key=key; box.checked=!!saved[key];
     const lab=document.createElement('label');
     lab.className='task'; lab.setAttribute('for',id);
     const b=document.createElement('b'); b.textContent=t[0];
@@ -1520,7 +1515,7 @@ function buildCheck(cfg){
   const persist=()=>{
     const boxes=ul.querySelectorAll('input[type=checkbox]');
     const out={}; let done=0;
-    boxes.forEach(b=>{ if(b.checked){ out[b.dataset.i]=1; done++; } });
+    boxes.forEach(b=>{ if(b.checked){ out[b.dataset.key]=1; done++; } });
     Store.set(cfg.key,JSON.stringify(out));
     countEl.textContent=done+' of '+boxes.length+' done';
   };
@@ -1543,7 +1538,6 @@ function buildCheck(cfg){
   }
 }
 
-buildCheck({key:'geardock:prep',tasks:PREP,weekly:false,listId:'prepcheck',countId:'prepCount',saveId:'prepSave',clearId:'prepClear'});
 buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',countId:'weekCount',saveId:'weekSave',clearId:'weekClear'});
 
 /* ---- countdown ---- */
@@ -1552,8 +1546,6 @@ buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',count
   const label=document.getElementById('clockLabel');
   const digits=document.getElementById('clockDigits');
   const note=document.getElementById('clockNote');
-  const prepSec=document.getElementById('prep');
-  const navPrep=document.getElementById('navPrep');
   const pad=v=>(v<10?'0':'')+v;
   const unit=(v,l)=>'<div class="unit"><b>'+pad(v)+'</b><i>'+l+'</i></div>';
 
@@ -1564,7 +1556,7 @@ buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',count
       label.textContent='Season 2 opens in';
       digits.innerHTML=unit(Math.floor(s/86400),'days')+unit(Math.floor(s%86400/3600),'hrs')
         +unit(Math.floor(s%3600/60),'min')+unit(s%60,'sec');
-      note.textContent='Tuesday 18 August, 8am PT / 10am CT. Prep week is section 00 below — everything in it is progress you keep.';
+      note.textContent='Tuesday 18 August, 8am PT / 10am CT.';
       clock.classList.remove('live');
       return;
     }
@@ -1575,10 +1567,6 @@ buildCheck({key:'geardock:week',tasks:TASKS,weekly:true,listId:'checklist',count
     digits.innerHTML=unit(Math.floor(r/86400),'days')+unit(Math.floor(r%86400/3600),'hrs')+unit(Math.floor(r%3600/60),'min');
     note.textContent='Vault progress and crest caps roll over at reset. The crests themselves carry; the unused portion of the weekly cap does not.';
     clock.classList.add('live');
-    if(prepSec&&!prepSec.classList.contains('prep-done')){
-      prepSec.classList.add('prep-done');
-      if(navPrep) navPrep.style.display='none';
-    }
   }
   tick();
   setInterval(tick,1000);
